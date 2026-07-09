@@ -1,0 +1,188 @@
+<ng-container *ngIf="isRecruiter; else notRecruiter">
+    <div class="max-w-7xl mx-auto px-6 py-12">
+        <div class="flex justify-between items-end mb-8 animate-fade-in-up">
+            <div>
+                <h1 class="text-4xl md:text-5xl font-bold mb-2 text-white">
+                    Recruiter <span class="gradient-text">Workspace</span>
+                </h1>
+                <p class="text-slate-400 text-lg">Manage your job postings and review AI-scored candidates.</p>
+            </div>
+            <button (click)="isFormOpen = !isFormOpen"
+                    class="hidden md:flex items-center gap-2 px-6 py-3 rounded-xl btn-glow text-white font-medium">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14" /><path d="M12 5v14" /></svg>
+                {{ isFormOpen ? 'Cancel' : 'Post New Job' }}
+            </button>
+        </div>
+
+        <!-- Message Banner -->
+        <div *ngIf="message" [class]="'mb-6 p-4 rounded-xl text-sm font-medium animate-fade-in ' + (message.includes('success') ? 'text-emerald-400' : 'text-rose-400')" [ngStyle]="message.includes('success') ? {'background': 'rgba(16,185,129,0.1)', 'border': '1px solid rgba(16,185,129,0.2)'} : {'background': 'rgba(244,63,94,0.1)', 'border': '1px solid rgba(244,63,94,0.2)'}">
+            {{ message }}
+        </div>
+
+        <!-- Post Job Form -->
+        <div *ngIf="isFormOpen" class="mb-8 p-6 glass-card-strong rounded-2xl animate-fade-in-up">
+            <h2 class="text-2xl font-bold mb-6 text-white flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="12" x2="12" y1="18" y2="12" /><line x1="9" x2="15" y1="15" y2="15" /></svg>
+                Create New Job Posting
+            </h2>
+            <form (ngSubmit)="onSubmit()" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Job Title</label>
+                    <input required type="text" [(ngModel)]="title" name="title"
+                           class="input-dark w-full rounded-xl px-4 py-3 shadow-sm"
+                           placeholder="e.g. Senior Frontend Engineer" />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Description</label>
+                    <textarea required rows="4" [(ngModel)]="description" name="description"
+                              class="input-dark w-full rounded-xl px-4 py-3 shadow-sm resize-none"
+                              placeholder="Describe the role, responsibilities, and requirements..."></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Required Skills (comma separated)</label>
+                    <input required type="text" [(ngModel)]="requiredSkills" name="requiredSkills"
+                           class="input-dark w-full rounded-xl px-4 py-3 shadow-sm"
+                           placeholder="e.g. React, TypeScript, TailwindCSS" />
+                </div>
+                <div class="flex justify-end gap-3 pt-2">
+                    <button type="button" (click)="isFormOpen = false"
+                            class="px-6 py-3 rounded-xl btn-glass font-medium">
+                        Cancel
+                    </button>
+                    <button type="submit" [disabled]="loading"
+                            class="px-8 py-3 rounded-xl btn-glow text-white font-medium disabled:opacity-50 flex items-center gap-2">
+                        {{ loading ? 'Posting...' : 'Post Job' }}
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Left Column: Job Postings -->
+            <div class="lg:col-span-1 lg:pr-4 min-h-[500px] ext-style-15a3a8ad">
+                <h2 class="text-xl font-bold mb-6 text-white pb-4 ext-style-d125589a">My Active Jobs</h2>
+
+                <div *ngIf="jobs.length === 0" class="text-center py-10 text-slate-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mx-auto mb-3 opacity-30"><rect width="18" height="18" x="3" y="4" rx="2" ry="2" /><line x1="16" x2="16" y1="2" y2="6" /><line x1="8" x2="8" y1="2" y2="6" /><line x1="3" x2="21" y1="10" y2="10" /></svg>
+                    <p>No active job postings.</p>
+                    <button (click)="isFormOpen = true" class="text-blue-400 mt-2 hover:text-blue-300 hover:underline transition-colors">Post one now</button>
+                </div>
+
+                <div class="space-y-3">
+                    <div *ngFor="let job of jobs"
+                         (click)="selectJob(job.id)"
+                         [class]="'p-4 rounded-xl cursor-pointer transition-all duration-300 ' + (selectedJobId === job.id ? '' : '')"
+                         [ngStyle]="selectedJobId === job.id ? {'background': 'rgba(59,130,246,0.1)', 'border': '1px solid rgba(59,130,246,0.25)', 'box-shadow': '0 0 20px rgba(59,130,246,0.08)'} : {'background': 'rgba(255,255,255,0.03)', 'border': '1px solid rgba(255,255,255,0.06)'}">
+                        <h3 [class]="'font-bold mb-1 ' + (selectedJobId === job.id ? 'text-blue-400' : 'text-white')">
+                            {{ job.title }}
+                        </h3>
+                        <p class="text-xs text-slate-500 mb-3">{{ timeAgo(job.createdAt) }}</p>
+                        <div class="flex flex-wrap gap-1">
+                            <span *ngFor="let skill of getSkills(job.requiredSkills).slice(0,3)"
+                                  class="px-2 py-0.5 rounded text-[10px] font-medium text-slate-400 ext-style-4a205bee">
+                                {{ skill }}
+                            </span>
+                            <span *ngIf="getSkills(job.requiredSkills).length > 3" class="px-2 py-0.5 rounded text-[10px] font-medium text-slate-500" class="bg-white/[0.03]">
+                                +{{ getSkills(job.requiredSkills).length - 3 }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Applications -->
+            <div class="lg:col-span-2">
+                <div *ngIf="!selectedJobId" class="h-full flex flex-col items-center justify-center text-slate-500 py-20">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="mb-4 opacity-20"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>
+                    <p class="text-lg">Select a job posting to view candidates.</p>
+                </div>
+
+                <div *ngIf="selectedJobId">
+                    <div class="flex items-center justify-between mb-6 pb-4 ext-style-d125589a">
+                        <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><line x1="19" x2="19" y1="8" y2="14" /><line x1="22" x2="16" y1="11" y2="11" /></svg>
+                            Candidates
+                            <span class="px-2.5 py-0.5 rounded-full text-sm font-medium ext-style-61204213">
+                                {{ applications.length }}
+                            </span>
+                        </h2>
+                    </div>
+
+                    <div *ngIf="appsLoading" class="text-center py-10 text-slate-500 flex justify-center gap-2">
+                        <svg class="animate-spin h-5 w-5 text-blue-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                        Loading applications...
+                    </div>
+
+                    <div *ngIf="!appsLoading && applications.length === 0" class="text-center py-16 text-slate-500 glass-card rounded-2xl ext-style-c76698ab">
+                        <p>No candidates have applied for this position yet.</p>
+                    </div>
+
+                    <div *ngIf="!appsLoading && applications.length > 0" class="space-y-4">
+                        <div *ngFor="let app of applications" class="glass-card p-6 rounded-2xl group relative overflow-hidden">
+                            <!-- AI Score indicator line -->
+                            <div class="absolute left-0 top-0 bottom-0 w-1 rounded-l-2xl" [ngStyle]="{'background': app.aiMatchScore >= 80 ? 'linear-gradient(to bottom, #10B981, #059669)' : app.aiMatchScore >= 60 ? 'linear-gradient(to bottom, #F59E0B, #D97706)' : 'linear-gradient(to bottom, #F43F5E, #E11D48)'}"></div>
+
+                            <div class="flex flex-col sm:flex-row justify-between gap-4 pl-3">
+                                <div>
+                                    <h3 class="text-lg font-bold text-white mb-1 flex items-center gap-2">
+                                        {{ app.candidateName }}
+                                        <span [class]="'px-2 py-0.5 rounded text-xs font-medium ' + getStatusColor(app.status)">
+                                            {{ app.status }}
+                                        </span>
+                                    </h3>
+                                    <a [href]="'mailto:' + app.candidateEmail" class="text-slate-400 text-sm hover:text-blue-400 transition-colors flex items-center gap-1.5 mb-3">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2" /><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" /></svg>
+                                        {{ app.candidateEmail }}
+                                    </a>
+                                    <p class="text-xs text-slate-500 font-medium flex items-center gap-1.5">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
+                                        Applied {{ timeAgo(app.appliedAt) }}
+                                    </p>
+                                </div>
+
+                                <div class="flex flex-col sm:items-end justify-between pt-4 sm:pt-0 ext-style-7c5d9d91">
+                                    <div class="flex items-center gap-3 mb-4">
+                                        <div class="text-right">
+                                            <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-0.5">AI Match</p>
+                                            <p [class]="'text-2xl font-black ' + (app.aiMatchScore >= 80 ? 'text-emerald-400' : app.aiMatchScore >= 60 ? 'text-amber-400' : 'text-rose-400')">
+                                                {{ app.aiMatchScore }}<span class="text-sm opacity-50">%</span>
+                                            </p>
+                                        </div>
+                                        <div class="w-12 h-12 rounded-full flex items-center justify-center"
+                                             [ngStyle]="{'border': '3px solid ' + (app.aiMatchScore >= 80 ? '#10B981' : app.aiMatchScore >= 60 ? '#F59E0B' : '#F43F5E'), 'box-shadow': '0 0 15px ' + (app.aiMatchScore >= 80 ? 'rgba(16,185,129,0.2)' : app.aiMatchScore >= 60 ? 'rgba(245,158,11,0.2)' : 'rgba(244,63,94,0.2)'), 'background': 'transparent'}">
+                                            <svg *ngIf="app.aiMatchScore >= 80" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m9 12 2 2 4-4" /><circle cx="12" cy="12" r="10" /></svg>
+                                            <svg *ngIf="app.aiMatchScore < 80" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" [class]="app.aiMatchScore >= 60 ? 'text-amber-400' : 'text-rose-400'"><path d="M12 2v20" /><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" /></svg>
+                                        </div>
+                                    </div>
+
+                                    <div class="relative inline-block w-full sm:w-auto">
+                                        <select (change)="updateStatus(app.id, $any($event.target).value)"
+                                                aria-label="Update application status"
+                                                class="input-dark w-full sm:w-auto appearance-none text-sm py-2 pl-4 pr-10 rounded-lg cursor-pointer">
+                                            <option [selected]="app.status === 'Applied'" value="Applied">Applied</option>
+                                            <option [selected]="app.status === 'Shortlisted'" value="Shortlisted">Shortlist</option>
+                                            <option [selected]="app.status === 'Interviewed'" value="Interviewed">Interview</option>
+                                            <option [selected]="app.status === 'Hired'" value="Hired">Hire</option>
+                                            <option [selected]="app.status === 'Rejected'" value="Rejected">Reject</option>
+                                        </select>
+                                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-500">
+                                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</ng-container>
+
+<ng-template #notRecruiter>
+    <div class="max-w-7xl mx-auto px-6 py-20 text-center">
+        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mx-auto mb-4 text-slate-600"><rect width="20" height="14" x="2" y="7" rx="2" ry="2" /><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" /></svg>
+        <h2 class="text-2xl font-bold mb-2 text-white">Access Denied</h2>
+        <p class="text-slate-400">You must be logged in as a Recruiter to view this page and post jobs.</p>
+    </div>
+</ng-template>

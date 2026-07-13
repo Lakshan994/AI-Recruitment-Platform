@@ -1,0 +1,179 @@
+<div class="max-w-7xl mx-auto px-6 py-12">
+  <div class="flex items-center justify-between mb-8 animate-fade-in-up">
+    <div>
+      <h1 class="text-3xl font-bold text-white mb-2">Admin Portal</h1>
+      <p class="text-slate-400">Manage users and view system analytics</p>
+    </div>
+  </div>
+
+  <div *ngIf="message" class="mb-6 p-4 rounded-xl text-emerald-400 animate-fade-in ext-style-aad0388f">
+    {{ message }}
+  </div>
+
+  <!-- Tabs -->
+  <div class="flex gap-4 mb-8 pb-px ext-style-d125589a">
+    <button (click)="activeTab = 'users'" [class]="'pb-4 px-2 font-medium transition-all border-b-2 ' + (activeTab === 'users' ? 'text-blue-400 border-blue-400' : 'text-slate-500 border-transparent hover:text-slate-300')">
+      User Management
+    </button>
+    <button (click)="activeTab = 'analytics'" [class]="'pb-4 px-2 font-medium transition-all border-b-2 ' + (activeTab === 'analytics' ? 'text-blue-400 border-blue-400' : 'text-slate-500 border-transparent hover:text-slate-300')">
+      System Analytics
+    </button>
+  </div>
+
+  <!-- User Management Tab -->
+  <div *ngIf="activeTab === 'users'">
+    <div *ngIf="loadingUsers" class="text-slate-500">Loading users...</div>
+    
+    <div *ngIf="!loadingUsers" class="glass-card rounded-2xl overflow-hidden animate-fade-in-up">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm">
+          <thead class="ext-style-ed099374">
+            <tr class="text-slate-400">
+              <th class="px-6 py-4 font-medium">Name</th>
+              <th class="px-6 py-4 font-medium">Email</th>
+              <th class="px-6 py-4 font-medium">Joined</th>
+              <th class="px-6 py-4 font-medium">Role</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let user of users" class="transition-colors ext-style-62b75090 hover:bg-white/[0.03]">
+              <td class="px-6 py-4 text-white font-medium">{{ user.firstName }} {{ user.lastName }}</td>
+              <td class="px-6 py-4 text-slate-400">{{ user.email }}</td>
+              <td class="px-6 py-4 text-slate-400">{{ formatDate(user.createdAt) }}</td>
+              <td class="px-6 py-4">
+                <select [value]="user.role" (change)="updateRole(user.id, $event)" aria-label="Change user role"
+                        class="input-dark text-sm rounded-lg block w-full p-2.5">
+                  <option value="Candidate">Candidate</option>
+                  <option value="Recruiter">Recruiter</option>
+                  <option value="HiringManager">Hiring Manager</option>
+                  <option value="Admin">Admin</option>
+                </select>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Analytics Tab -->
+  <div *ngIf="activeTab === 'analytics' && stats">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+      <div class="glass-card p-6 rounded-2xl text-center hover:-translate-y-1 transition-all duration-300 animate-fade-in-up">
+        <p class="text-3xl font-bold text-white mb-1">{{ stats.totalUsers }}</p>
+        <p class="text-sm text-slate-400">Total Users</p>
+      </div>
+      <div class="glass-card p-6 rounded-2xl text-center hover:-translate-y-1 transition-all duration-300 animate-fade-in-up ext-style-99f8dc7d">
+        <p class="text-3xl font-bold text-white mb-1">{{ stats.totalJobs }}</p>
+        <p class="text-sm text-slate-400">Total Jobs</p>
+      </div>
+      <div class="glass-card p-6 rounded-2xl text-center hover:-translate-y-1 transition-all duration-300 animate-fade-in-up ext-style-c58e9569">
+        <p class="text-3xl font-bold text-white mb-1">{{ stats.activeJobs }}</p>
+        <p class="text-sm text-slate-400">Active Jobs</p>
+      </div>
+      <div class="glass-card p-6 rounded-2xl text-center hover:-translate-y-1 transition-all duration-300 animate-fade-in-up ext-style-93d5c15e">
+        <p class="text-3xl font-bold text-white mb-1">{{ stats.totalApplications }}</p>
+        <p class="text-sm text-slate-400">Applications</p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <!-- User Distribution -->
+      <div class="glass-card p-6 rounded-2xl animate-fade-in-up-delay">
+        <h3 class="text-lg font-semibold text-white mb-6">User Demographics</h3>
+        
+        <div class="space-y-5">
+          <div>
+            <div class="flex justify-between text-sm mb-2">
+              <span class="text-slate-300">Candidates</span>
+              <span class="text-emerald-400 font-medium">{{ stats.totalCandidates }}</span>
+            </div>
+            <div class="progress-track h-2">
+              <div class="h-2 rounded-full ext-style-4f2d1c56" [ngStyle]="{'width': ((stats.totalCandidates / stats.totalUsers) * 100) + '%'}"></div>
+            </div>
+          </div>
+          <div>
+            <div class="flex justify-between text-sm mb-2">
+              <span class="text-slate-300">Recruiters</span>
+              <span class="text-cyan-400 font-medium">{{ stats.totalRecruiters }}</span>
+            </div>
+            <div class="progress-track h-2">
+              <div class="h-2 rounded-full ext-style-8f251d75" [ngStyle]="{'width': ((stats.totalRecruiters / stats.totalUsers) * 100) + '%'}"></div>
+            </div>
+          </div>
+          <div>
+            <div class="flex justify-between text-sm mb-2">
+              <span class="text-slate-300">Hiring Managers</span>
+              <span class="text-blue-400 font-medium">{{ stats.totalHiringManagers }}</span>
+            </div>
+            <div class="progress-track h-2">
+              <div class="h-2 rounded-full ext-style-c329c55e" [ngStyle]="{'width': ((stats.totalHiringManagers / stats.totalUsers) * 100) + '%'}"></div>
+            </div>
+          </div>
+          <div>
+            <div class="flex justify-between text-sm mb-2">
+              <span class="text-slate-300">Admins</span>
+              <span class="text-violet-400 font-medium">{{ stats.totalAdmins }}</span>
+            </div>
+            <div class="progress-track h-2">
+              <div class="h-2 rounded-full ext-style-29f313b3" [ngStyle]="{'width': ((stats.totalAdmins / stats.totalUsers) * 100) + '%'}"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Application Funnel -->
+      <div class="glass-card p-6 rounded-2xl animate-fade-in-up-delay">
+        <h3 class="text-lg font-semibold text-white mb-6">Hiring Funnel</h3>
+        
+        <div class="space-y-5">
+          <div>
+            <div class="flex justify-between text-sm mb-2">
+              <span class="text-slate-300">Applied</span>
+              <span class="text-slate-400 font-medium">{{ stats.applicationsApplied }}</span>
+            </div>
+            <div class="progress-track h-2">
+              <div class="h-2 rounded-full ext-style-aa34cdf7" [ngStyle]="{'width': ((stats.applicationsApplied / (stats.totalApplications || 1)) * 100) + '%'}"></div>
+            </div>
+          </div>
+          <div>
+            <div class="flex justify-between text-sm mb-2">
+              <span class="text-slate-300">Shortlisted</span>
+              <span class="text-blue-400 font-medium">{{ stats.applicationsShortlisted }}</span>
+            </div>
+            <div class="progress-track h-2">
+              <div class="h-2 rounded-full ext-style-c329c55e" [ngStyle]="{'width': ((stats.applicationsShortlisted / (stats.totalApplications || 1)) * 100) + '%'}"></div>
+            </div>
+          </div>
+          <div>
+            <div class="flex justify-between text-sm mb-2">
+              <span class="text-slate-300">Interviewed</span>
+              <span class="text-violet-400 font-medium">{{ stats.applicationsInterviewed }}</span>
+            </div>
+            <div class="progress-track h-2">
+              <div class="h-2 rounded-full ext-style-29f313b3" [ngStyle]="{'width': ((stats.applicationsInterviewed / (stats.totalApplications || 1)) * 100) + '%'}"></div>
+            </div>
+          </div>
+          <div>
+            <div class="flex justify-between text-sm mb-2">
+              <span class="text-slate-300">Hired</span>
+              <span class="text-emerald-400 font-medium">{{ stats.applicationsHired }}</span>
+            </div>
+            <div class="progress-track h-2">
+              <div class="h-2 rounded-full ext-style-4f2d1c56" [ngStyle]="{'width': ((stats.applicationsHired / (stats.totalApplications || 1)) * 100) + '%'}"></div>
+            </div>
+          </div>
+          <div>
+            <div class="flex justify-between text-sm mb-2">
+              <span class="text-slate-300">Rejected</span>
+              <span class="text-rose-400 font-medium">{{ stats.applicationsRejected }}</span>
+            </div>
+            <div class="progress-track h-2">
+              <div class="h-2 rounded-full ext-style-6ca6dfe6" [ngStyle]="{'width': ((stats.applicationsRejected / (stats.totalApplications || 1)) * 100) + '%'}"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

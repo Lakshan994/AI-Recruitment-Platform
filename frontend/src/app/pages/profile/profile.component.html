@@ -1,0 +1,100 @@
+<div class="min-h-[calc(100vh-4rem)] p-8">
+  <div class="max-w-4xl mx-auto">
+    
+    <div class="mb-8 animate-fade-in-up">
+      <h1 class="text-3xl font-bold text-white mb-2">My Profile</h1>
+      <p class="text-slate-400">Manage your professional details and resume.</p>
+    </div>
+
+    <!-- Alerts -->
+    <div *ngIf="error" class="px-4 py-3 rounded-xl mb-6 text-rose-400 animate-fade-in ext-style-5f528695">
+      {{ error }}
+    </div>
+    <div *ngIf="message" class="px-4 py-3 rounded-xl mb-6 text-emerald-400 animate-fade-in ext-style-aad0388f">
+      {{ message }}
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="flex justify-center py-12">
+      <div class="animate-spin rounded-full h-12 w-12 ext-style-85380c87"></div>
+    </div>
+
+    <div *ngIf="!isLoading" class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      
+      <!-- Main Details Form -->
+      <div class="md:col-span-2 space-y-6">
+        <div class="glass-card-strong rounded-2xl p-6 animate-fade-in-up-delay">
+          <h2 class="text-xl font-bold text-white mb-6">Professional Details</h2>
+          
+          <div class="space-y-4">
+            <div>
+              <label for="bio" class="block text-sm font-medium text-slate-300 mb-1">Professional Bio</label>
+              <textarea id="bio" [(ngModel)]="profile.bio" rows="4" placeholder="Tell us about yourself..."
+                        class="input-dark w-full rounded-xl px-4 py-3 resize-none"></textarea>
+            </div>
+
+            <div>
+              <label for="skills" class="block text-sm font-medium text-slate-300 mb-1">Key Skills (Comma separated)</label>
+              <input id="skills" [(ngModel)]="profile.skills" type="text" placeholder="e.g. C#, Angular, MongoDB"
+                     class="input-dark w-full rounded-xl px-4 py-3">
+            </div>
+
+            <div>
+              <label for="experience" class="block text-sm font-medium text-slate-300 mb-1">Work Experience</label>
+              <textarea id="experience" [(ngModel)]="profile.experience" rows="3" placeholder="List your relevant work experience..."
+                        class="input-dark w-full rounded-xl px-4 py-3 resize-none"></textarea>
+            </div>
+
+            <div>
+              <label for="education" class="block text-sm font-medium text-slate-300 mb-1">Education</label>
+              <input id="education" [(ngModel)]="profile.education" type="text" placeholder="e.g. BSc Computer Science, NSBM"
+                     class="input-dark w-full rounded-xl px-4 py-3">
+            </div>
+
+            <button (click)="saveProfile()" [disabled]="isSaving"
+                    class="w-full mt-4 btn-glow text-white rounded-xl px-4 py-3 font-medium disabled:opacity-50 flex items-center justify-center">
+              <span *ngIf="!isSaving">Save Changes</span>
+              <div *ngIf="isSaving" class="animate-spin rounded-full h-5 w-5 ext-style-75ff706b"></div>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Resume Sidebar -->
+      <div class="space-y-6">
+        <div class="glass-card-strong rounded-2xl p-6 animate-fade-in-up-delay-2">
+          <h2 class="text-xl font-bold text-white mb-6">Resume / CV</h2>
+          
+          <div *ngIf="profile.resumeUrl" class="mb-6 p-4 rounded-xl ext-style-a0ec6200">
+            <div class="flex items-center gap-3">
+              <svg class="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+              <div>
+                <p class="text-sm font-medium text-white">Resume Uploaded</p>
+                <a [href]="profile.resumeUrl" target="_blank" class="text-xs text-blue-400 hover:text-blue-300 underline transition-colors">View Document</a>
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="!profile.resumeUrl" class="mb-6 text-sm p-3 rounded-lg ext-style-6b77056f">
+            You have not uploaded a resume yet. You must upload one before applying to jobs.
+          </div>
+
+          <div class="space-y-4">
+            <div>
+              <label for="resumeUpload" class="block text-sm font-medium text-slate-300 mb-2">Upload New Resume</label>
+              <input id="resumeUpload" type="file" (change)="onFileSelected($event)" accept=".pdf,.doc,.docx" title="Upload Resume"
+                     class="block w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:text-blue-400 transition-all cursor-pointer ext-style-4f668b6f">
+            </div>
+
+            <button (click)="uploadResume()" [disabled]="!selectedFile || isUploading"
+                    class="w-full btn-glass rounded-xl px-4 py-2 font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center">
+              <span *ngIf="!isUploading">Upload File</span>
+              <div *ngIf="isUploading" class="animate-spin rounded-full h-5 w-5 ext-style-622d2112"></div>
+            </button>
+          </div>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</div>

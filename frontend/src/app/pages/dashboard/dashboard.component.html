@@ -1,0 +1,59 @@
+<div class="max-w-7xl mx-auto px-6 py-12" *ngIf="user">
+  <!-- Welcome Header -->
+  <div class="mb-12 animate-fade-in-up">
+    <h1 class="text-4xl md:text-5xl font-bold mb-2 text-gray-900 dark:text-white">
+      {{ title }}
+    </h1>
+    <p class="text-gray-600 dark:text-slate-400 text-lg">
+      {{ subtitle }}
+    </p>
+  </div>
+
+  <!-- Stats Row -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
+    <div *ngFor="let stat of statCards; let i = index"
+         class="glass-card p-6 rounded-2xl text-center hover:-translate-y-1 transition-all duration-300 animate-fade-in-up" [ngStyle]="{'animation-delay': (i * 0.1) + 's'}">
+      <p class="text-3xl font-bold text-gray-900 dark:text-white mb-1">{{ stat.value }}</p>
+      <p class="text-sm text-gray-500 dark:text-slate-400">{{ stat.label }}</p>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div>
+    <h2 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Quick Actions</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <button *ngFor="let action of actions; let i = index" (click)="navigate(action.link)"
+              class="glass-card p-6 rounded-2xl text-left flex items-start gap-5 group relative overflow-hidden hover:-translate-y-1 transition-all duration-300 animate-fade-in-up" [ngStyle]="{'animation-delay': (i * 0.1) + 's'}">
+        <div class="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+        <div class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-blue-500/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+        <div [class]="'relative z-10 w-14 h-14 rounded-xl bg-gradient-to-br ' + action.color + ' flex items-center justify-center text-white shrink-0'" class="ext-style-4c7c20be">
+          <!-- Generic Icon for all for simplicity -->
+          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        </div>
+        <div class="relative z-10">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-1 group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-colors">{{ action.title }}</h3>
+          <p class="text-gray-500 dark:text-slate-400 text-sm leading-relaxed">{{ action.desc }}</p>
+        </div>
+      </button>
+    </div>
+  </div>
+
+  <!-- Account Info -->
+  <div class="mt-12 glass-card p-6 rounded-2xl hover:-translate-y-0.5 transition-all duration-300">
+    <h2 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Account Details</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+      <div>
+        <p class="text-gray-500 dark:text-slate-500 mb-1 font-medium">Email</p>
+        <p class="text-gray-800 dark:text-slate-300">{{ user.email }}</p>
+      </div>
+      <div>
+        <p class="text-gray-500 dark:text-slate-500 mb-1 font-medium">Role</p>
+        <p class="text-gray-800 dark:text-slate-300">{{ user.role }}</p>
+      </div>
+      <div>
+        <p class="text-gray-500 dark:text-slate-500 mb-1 font-medium">Name</p>
+        <p class="text-gray-800 dark:text-slate-300">{{ user.firstName }}</p>
+      </div>
+    </div>
+  </div>
+</div>

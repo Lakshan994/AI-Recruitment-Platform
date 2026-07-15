@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using RecruitmentPlatform.API.DTOs;
 using RecruitmentPlatform.API.Interfaces;
 
-namespace RecruitmentPlatform.API.Controllers
+namespace RecruitmentPlatform.API.RecruitmentPlatform.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]

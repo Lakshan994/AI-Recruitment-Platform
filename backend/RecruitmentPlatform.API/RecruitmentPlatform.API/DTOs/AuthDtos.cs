@@ -1,4 +1,4 @@
-namespace RecruitmentPlatform.API.DTOs
+namespace RecruitmentPlatform.API.RecruitmentPlatform.API.DTOs
 {
     public class RegisterDto
     {

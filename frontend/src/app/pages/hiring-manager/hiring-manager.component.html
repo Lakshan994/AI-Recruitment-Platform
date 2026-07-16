@@ -1,0 +1,87 @@
+<div class="min-h-[calc(100vh-4rem)] p-8">
+  <div class="max-w-6xl mx-auto">
+    <!-- Header -->
+    <div class="mb-8 animate-fade-in-up">
+      <h1 class="text-3xl font-bold text-white mb-2">Hiring Dashboard</h1>
+      <p class="text-slate-400">Review shortlisted candidates and make final hiring decisions.</p>
+    </div>
+
+    <!-- Alerts -->
+    <div *ngIf="error" class="px-4 py-3 rounded-xl mb-6 text-rose-400 animate-fade-in ext-style-5f528695">
+      {{ error }}
+    </div>
+    <div *ngIf="successMessage" class="px-4 py-3 rounded-xl mb-6 text-emerald-400 animate-fade-in ext-style-aad0388f">
+      {{ successMessage }}
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="flex justify-center py-12">
+      <div class="animate-spin rounded-full h-12 w-12 ext-style-85380c87"></div>
+    </div>
+
+    <!-- Applications List -->
+    <div *ngIf="!isLoading && applications.length > 0" class="space-y-4">
+      <div *ngFor="let app of applications; let i = index" class="glass-card rounded-2xl p-6 hover:-translate-y-1 transition-all duration-300 animate-fade-in-up" [ngStyle]="{'animation-delay': (i * 0.05) + 's'}">
+        <div class="flex items-start justify-between">
+          <div>
+            <div class="flex items-center gap-3 mb-1">
+              <h3 class="text-xl font-bold text-white">{{ app.candidateName }}</h3>
+              <span class="px-2.5 py-0.5 rounded-full text-xs font-medium text-white"
+                    [class.bg-amber-500]="app.status === 'Shortlisted'"
+                    [class.bg-purple-500]="app.status === 'Interviewed'"
+                    [class.bg-emerald-500]="app.status === 'Hired'"
+                    [class.bg-rose-500]="app.status === 'Rejected'"
+                    [ngStyle]="app.status === 'Shortlisted' ? {'box-shadow': '0 0 12px rgba(245,158,11,0.25)'} : app.status === 'Interviewed' ? {'box-shadow': '0 0 12px rgba(139,92,246,0.25)'} : app.status === 'Hired' ? {'box-shadow': '0 0 12px rgba(16,185,129,0.25)'} : {'box-shadow': '0 0 12px rgba(244,63,94,0.25)'}">
+                {{ app.status }}
+              </span>
+            </div>
+            <p class="text-slate-400 text-sm mb-4">
+              Applied for <span class="text-blue-400 font-medium">{{ app.jobTitle }}</span> on {{ formatDate(app.appliedAt) }}
+            </p>
+
+            <div class="flex items-center gap-6">
+              <div class="flex flex-col">
+                <span class="text-xs text-slate-500 uppercase font-bold tracking-wider mb-1">AI Match Score</span>
+                <span class="text-lg font-semibold" [class.text-emerald-400]="app.aiMatchScore >= 80" [class.text-amber-400]="app.aiMatchScore < 80 && app.aiMatchScore >= 60" [class.text-rose-400]="app.aiMatchScore < 60">
+                  {{ app.aiMatchScore }}%
+                </span>
+              </div>
+              <div class="flex flex-col">
+                <span class="text-xs text-slate-500 uppercase font-bold tracking-wider mb-1">Email</span>
+                <span class="text-sm text-slate-300">{{ app.candidateEmail }}</span>
+              </div>
+              <div class="flex flex-col" *ngIf="app.resumeUrl">
+                <span class="text-xs text-slate-500 uppercase font-bold tracking-wider mb-1">Resume</span>
+                <a [href]="app.resumeUrl" target="_blank" class="text-sm text-blue-400 hover:text-blue-300 underline transition-colors">View Document</a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex flex-col gap-2 min-w-[140px]">
+            <button *ngIf="app.status === 'Shortlisted'" (click)="makeDecision(app.id, 'Interviewed')" class="w-full px-4 py-2 rounded-lg text-sm font-medium text-white transition-all ext-style-40ea13a7">
+              Mark Interviewed
+            </button>
+            <button *ngIf="app.status === 'Interviewed' || app.status === 'Shortlisted'" (click)="makeDecision(app.id, 'Hired')" class="w-full px-4 py-2 rounded-lg text-sm font-medium text-white transition-all ext-style-fe8731ff">
+              Hire Candidate
+            </button>
+            <button *ngIf="app.status !== 'Hired' && app.status !== 'Rejected'" (click)="makeDecision(app.id, 'Rejected')" class="w-full btn-glass px-4 py-2 rounded-lg text-sm font-medium hover:text-rose-400 hover:border-rose-500/30 transition-all">
+              Reject
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!isLoading && applications.length === 0" class="text-center py-16 glass-card rounded-2xl animate-fade-in-up">
+      <div class="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center ext-style-90530afc">
+        <svg class="w-8 h-8 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+        </svg>
+      </div>
+      <h3 class="text-xl font-medium text-white mb-2">No candidates to review</h3>
+      <p class="text-slate-400">There are currently no shortlisted candidates waiting for your decision.</p>
+    </div>
+  </div>
+</div>

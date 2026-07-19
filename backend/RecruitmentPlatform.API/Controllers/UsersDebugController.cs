@@ -1,7 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using MongoDB.Driver;
 using RecruitmentPlatform.API.Data;
-using System.Linq;
 
 namespace RecruitmentPlatform.API.Controllers
 {
@@ -9,9 +7,9 @@ namespace RecruitmentPlatform.API.Controllers
     [ApiController]
     public class UsersDebugController : ControllerBase
     {
-        private readonly MongoDbContext _context;
+        private readonly AppDbContext _context;
 
-        public UsersDebugController(MongoDbContext context)
+        public UsersDebugController(AppDbContext context)
         {
             _context = context;
         }
@@ -19,7 +17,7 @@ namespace RecruitmentPlatform.API.Controllers
         [HttpGet]
         public IActionResult Get()
         {
-            var users = _context.Users.Find(_ => true).ToList();
+            var users = _context.Users.ToList();
             return Ok(users.Select(u => new { u.Email, u.Role, u.FirstName }));
         }
     }

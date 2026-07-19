@@ -14,7 +14,13 @@ import Chart from 'chart.js/auto';
 export class AiInsightsComponent implements OnInit, AfterViewInit {
     isLoggedIn = false;
     stats: DashboardStats | null = null;
+    perfStats: any = null;
     chart: any = null;
+
+    activeTab = 'pipeline'; // 'pipeline' or 'trends'
+    trendsReport = '';
+    trendsLoading = false;
+    trendsError = '';
 
     @ViewChild('pieChart') pieChartRef!: ElementRef;
 
@@ -30,7 +36,36 @@ export class AiInsightsComponent implements OnInit, AfterViewInit {
                 },
                 error: (err) => console.error(err)
             });
+
+            this.api.getPerformanceAnalytics().subscribe({
+                next: (data) => {
+                    this.perfStats = data;
+                },
+                error: (err) => console.error(err)
+            });
         }
+    }
+
+    selectTab(tab: string): void {
+        this.activeTab = tab;
+        if (tab === 'trends' && !this.trendsReport) {
+            this.loadTrends();
+        }
+    }
+
+    loadTrends(): void {
+        this.trendsLoading = true;
+        this.trendsError = '';
+        this.api.getHiringTrends().subscribe({
+            next: (res) => {
+                this.trendsReport = res.report;
+                this.trendsLoading = false;
+            },
+            error: (err) => {
+                this.trendsError = 'Failed to load hiring trends report. Please configure the Gemini API key in appsettings.json.';
+                this.trendsLoading = false;
+            }
+        });
     }
 
     ngAfterViewInit() {

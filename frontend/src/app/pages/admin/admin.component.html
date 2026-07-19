@@ -1,179 +1,541 @@
 <div class="max-w-7xl mx-auto px-6 py-12">
-  <div class="flex items-center justify-between mb-8 animate-fade-in-up">
-    <div>
-      <h1 class="text-3xl font-bold text-white mb-2">Admin Portal</h1>
-      <p class="text-slate-400">Manage users and view system analytics</p>
-    </div>
-  </div>
-
-  <div *ngIf="message" class="mb-6 p-4 rounded-xl text-emerald-400 animate-fade-in ext-style-aad0388f">
-    {{ message }}
-  </div>
-
-  <!-- Tabs -->
-  <div class="flex gap-4 mb-8 pb-px ext-style-d125589a">
-    <button (click)="activeTab = 'users'" [class]="'pb-4 px-2 font-medium transition-all border-b-2 ' + (activeTab === 'users' ? 'text-blue-400 border-blue-400' : 'text-slate-500 border-transparent hover:text-slate-300')">
-      User Management
-    </button>
-    <button (click)="activeTab = 'analytics'" [class]="'pb-4 px-2 font-medium transition-all border-b-2 ' + (activeTab === 'analytics' ? 'text-blue-400 border-blue-400' : 'text-slate-500 border-transparent hover:text-slate-300')">
-      System Analytics
-    </button>
-  </div>
-
-  <!-- User Management Tab -->
-  <div *ngIf="activeTab === 'users'">
-    <div *ngIf="loadingUsers" class="text-slate-500">Loading users...</div>
-    
-    <div *ngIf="!loadingUsers" class="glass-card rounded-2xl overflow-hidden animate-fade-in-up">
-      <div class="overflow-x-auto">
-        <table class="w-full text-left text-sm">
-          <thead class="ext-style-ed099374">
-            <tr class="text-slate-400">
-              <th class="px-6 py-4 font-medium">Name</th>
-              <th class="px-6 py-4 font-medium">Email</th>
-              <th class="px-6 py-4 font-medium">Joined</th>
-              <th class="px-6 py-4 font-medium">Role</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let user of users" class="transition-colors ext-style-62b75090 hover:bg-white/[0.03]">
-              <td class="px-6 py-4 text-white font-medium">{{ user.firstName }} {{ user.lastName }}</td>
-              <td class="px-6 py-4 text-slate-400">{{ user.email }}</td>
-              <td class="px-6 py-4 text-slate-400">{{ formatDate(user.createdAt) }}</td>
-              <td class="px-6 py-4">
-                <select [value]="user.role" (change)="updateRole(user.id, $event)" aria-label="Change user role"
-                        class="input-dark text-sm rounded-lg block w-full p-2.5">
-                  <option value="Candidate">Candidate</option>
-                  <option value="Recruiter">Recruiter</option>
-                  <option value="HiringManager">Hiring Manager</option>
-                  <option value="Admin">Admin</option>
-                </select>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <!-- Analytics Tab -->
-  <div *ngIf="activeTab === 'analytics' && stats">
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-      <div class="glass-card p-6 rounded-2xl text-center hover:-translate-y-1 transition-all duration-300 animate-fade-in-up">
-        <p class="text-3xl font-bold text-white mb-1">{{ stats.totalUsers }}</p>
-        <p class="text-sm text-slate-400">Total Users</p>
-      </div>
-      <div class="glass-card p-6 rounded-2xl text-center hover:-translate-y-1 transition-all duration-300 animate-fade-in-up ext-style-99f8dc7d">
-        <p class="text-3xl font-bold text-white mb-1">{{ stats.totalJobs }}</p>
-        <p class="text-sm text-slate-400">Total Jobs</p>
-      </div>
-      <div class="glass-card p-6 rounded-2xl text-center hover:-translate-y-1 transition-all duration-300 animate-fade-in-up ext-style-c58e9569">
-        <p class="text-3xl font-bold text-white mb-1">{{ stats.activeJobs }}</p>
-        <p class="text-sm text-slate-400">Active Jobs</p>
-      </div>
-      <div class="glass-card p-6 rounded-2xl text-center hover:-translate-y-1 transition-all duration-300 animate-fade-in-up ext-style-93d5c15e">
-        <p class="text-3xl font-bold text-white mb-1">{{ stats.totalApplications }}</p>
-        <p class="text-sm text-slate-400">Applications</p>
-      </div>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-      <!-- User Distribution -->
-      <div class="glass-card p-6 rounded-2xl animate-fade-in-up-delay">
-        <h3 class="text-lg font-semibold text-white mb-6">User Demographics</h3>
-        
-        <div class="space-y-5">
-          <div>
-            <div class="flex justify-between text-sm mb-2">
-              <span class="text-slate-300">Candidates</span>
-              <span class="text-emerald-400 font-medium">{{ stats.totalCandidates }}</span>
-            </div>
-            <div class="progress-track h-2">
-              <div class="h-2 rounded-full ext-style-4f2d1c56" [ngStyle]="{'width': ((stats.totalCandidates / stats.totalUsers) * 100) + '%'}"></div>
-            </div>
-          </div>
-          <div>
-            <div class="flex justify-between text-sm mb-2">
-              <span class="text-slate-300">Recruiters</span>
-              <span class="text-cyan-400 font-medium">{{ stats.totalRecruiters }}</span>
-            </div>
-            <div class="progress-track h-2">
-              <div class="h-2 rounded-full ext-style-8f251d75" [ngStyle]="{'width': ((stats.totalRecruiters / stats.totalUsers) * 100) + '%'}"></div>
-            </div>
-          </div>
-          <div>
-            <div class="flex justify-between text-sm mb-2">
-              <span class="text-slate-300">Hiring Managers</span>
-              <span class="text-blue-400 font-medium">{{ stats.totalHiringManagers }}</span>
-            </div>
-            <div class="progress-track h-2">
-              <div class="h-2 rounded-full ext-style-c329c55e" [ngStyle]="{'width': ((stats.totalHiringManagers / stats.totalUsers) * 100) + '%'}"></div>
-            </div>
-          </div>
-          <div>
-            <div class="flex justify-between text-sm mb-2">
-              <span class="text-slate-300">Admins</span>
-              <span class="text-violet-400 font-medium">{{ stats.totalAdmins }}</span>
-            </div>
-            <div class="progress-track h-2">
-              <div class="h-2 rounded-full ext-style-29f313b3" [ngStyle]="{'width': ((stats.totalAdmins / stats.totalUsers) * 100) + '%'}"></div>
-            </div>
-          </div>
+    <div class="flex items-center justify-between mb-8 animate-fade-in-up">
+        <div>
+            <h1 class="text-4xl font-bold text-[var(--theme-text)] mb-2">
+                Admin <span class="gradient-text">Portal</span>
+            </h1>
+            <p class="text-[var(--theme-text-muted)] text-lg">Manage users, permissions, company structure, and system health.</p>
         </div>
-      </div>
-
-      <!-- Application Funnel -->
-      <div class="glass-card p-6 rounded-2xl animate-fade-in-up-delay">
-        <h3 class="text-lg font-semibold text-white mb-6">Hiring Funnel</h3>
-        
-        <div class="space-y-5">
-          <div>
-            <div class="flex justify-between text-sm mb-2">
-              <span class="text-slate-300">Applied</span>
-              <span class="text-slate-400 font-medium">{{ stats.applicationsApplied }}</span>
-            </div>
-            <div class="progress-track h-2">
-              <div class="h-2 rounded-full ext-style-aa34cdf7" [ngStyle]="{'width': ((stats.applicationsApplied / (stats.totalApplications || 1)) * 100) + '%'}"></div>
-            </div>
-          </div>
-          <div>
-            <div class="flex justify-between text-sm mb-2">
-              <span class="text-slate-300">Shortlisted</span>
-              <span class="text-blue-400 font-medium">{{ stats.applicationsShortlisted }}</span>
-            </div>
-            <div class="progress-track h-2">
-              <div class="h-2 rounded-full ext-style-c329c55e" [ngStyle]="{'width': ((stats.applicationsShortlisted / (stats.totalApplications || 1)) * 100) + '%'}"></div>
-            </div>
-          </div>
-          <div>
-            <div class="flex justify-between text-sm mb-2">
-              <span class="text-slate-300">Interviewed</span>
-              <span class="text-violet-400 font-medium">{{ stats.applicationsInterviewed }}</span>
-            </div>
-            <div class="progress-track h-2">
-              <div class="h-2 rounded-full ext-style-29f313b3" [ngStyle]="{'width': ((stats.applicationsInterviewed / (stats.totalApplications || 1)) * 100) + '%'}"></div>
-            </div>
-          </div>
-          <div>
-            <div class="flex justify-between text-sm mb-2">
-              <span class="text-slate-300">Hired</span>
-              <span class="text-emerald-400 font-medium">{{ stats.applicationsHired }}</span>
-            </div>
-            <div class="progress-track h-2">
-              <div class="h-2 rounded-full ext-style-4f2d1c56" [ngStyle]="{'width': ((stats.applicationsHired / (stats.totalApplications || 1)) * 100) + '%'}"></div>
-            </div>
-          </div>
-          <div>
-            <div class="flex justify-between text-sm mb-2">
-              <span class="text-slate-300">Rejected</span>
-              <span class="text-rose-400 font-medium">{{ stats.applicationsRejected }}</span>
-            </div>
-            <div class="progress-track h-2">
-              <div class="h-2 rounded-full ext-style-6ca6dfe6" [ngStyle]="{'width': ((stats.applicationsRejected / (stats.totalApplications || 1)) * 100) + '%'}"></div>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
-  </div>
+
+    <!-- Messages -->
+    <div *ngIf="message" class="mb-6 p-4 rounded-xl text-sm font-medium text-emerald-400 animate-fade-in ext-style-aad0388f">
+        {{ message }}
+    </div>
+
+    <!-- Tabs Navigation -->
+    <div class="flex flex-wrap gap-2 mb-8 border-b border-slate-200 dark:border-slate-800 pb-px">
+        <button (click)="selectTab('users')" [class]="'pb-4 px-4 font-semibold text-sm transition-all border-b-2 ' + (activeTab === 'users' ? 'text-cyan-400 border-blue-400' : 'text-[var(--theme-text-muted)] border-transparent hover:text-[var(--theme-text-muted)]')">
+            User Directory
+        </button>
+        <button (click)="selectTab('permissions')" [class]="'pb-4 px-4 font-semibold text-sm transition-all border-b-2 ' + (activeTab === 'permissions' ? 'text-cyan-400 border-blue-400' : 'text-[var(--theme-text-muted)] border-transparent hover:text-[var(--theme-text-muted)]')">
+            Roles & Permissions
+        </button>
+        <button (click)="selectTab('org')" [class]="'pb-4 px-4 font-semibold text-sm transition-all border-b-2 ' + (activeTab === 'org' ? 'text-cyan-400 border-blue-400' : 'text-[var(--theme-text-muted)] border-transparent hover:text-[var(--theme-text-muted)]')">
+            Organization & Depts
+        </button>
+        <button (click)="selectTab('monitoring')" [class]="'pb-4 px-4 font-semibold text-sm transition-all border-b-2 ' + (activeTab === 'monitoring' ? 'text-cyan-400 border-blue-400' : 'text-[var(--theme-text-muted)] border-transparent hover:text-[var(--theme-text-muted)]')">
+            System Health
+        </button>
+        <button (click)="selectTab('communications')" [class]="'pb-4 px-4 font-semibold text-sm transition-all border-b-2 ' + (activeTab === 'communications' ? 'text-cyan-400 border-blue-400' : 'text-[var(--theme-text-muted)] border-transparent hover:text-[var(--theme-text-muted)]')">
+            Communication Hub
+        </button>
+        <button (click)="selectTab('analytics')" [class]="'pb-4 px-4 font-semibold text-sm transition-all border-b-2 ' + (activeTab === 'analytics' ? 'text-cyan-400 border-blue-400' : 'text-[var(--theme-text-muted)] border-transparent hover:text-[var(--theme-text-muted)]')">
+            Recruitment Funnel
+        </button>
+    </div>
+
+    <!-- 1. USER DIRECTORY TAB -->
+    <div *ngIf="activeTab === 'users'">
+        <div *ngIf="loadingUsers" class="text-center py-10 text-[var(--theme-text-muted)] flex justify-center gap-2">
+            <svg class="animate-spin h-5 w-5 text-cyan-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+            Loading user database...
+        </div>
+
+        <div *ngIf="!loadingUsers" class="card-panel rounded-3xl overflow-hidden animate-fade-in-up">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm">
+                    <thead>
+                        <tr class="text-[var(--theme-text-muted)] border-b border-slate-200 dark:border-slate-800">
+                            <th class="px-6 py-4 font-semibold">Name</th>
+                            <th class="px-6 py-4 font-semibold">Email Address</th>
+                            <th class="px-6 py-4 font-semibold">Joined Date</th>
+                            <th class="px-6 py-4 font-semibold">Security Role</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let user of users" class="transition-colors border-b border-slate-900 hover:bg-slate-900/[0.02]">
+                            <td class="px-6 py-4 text-[var(--theme-text)] font-medium">{{ user.firstName }} {{ user.lastName }}</td>
+                            <td class="px-6 py-4 text-[var(--theme-text-muted)]">{{ user.email }}</td>
+                            <td class="px-6 py-4 text-[var(--theme-text-muted)]">{{ formatDate(user.createdAt) }}</td>
+                            <td class="px-6 py-4">
+                                <select [value]="user.role" (change)="updateRole(user.id, $event)" aria-label="Change user security role"
+                                        class="card-panel text-[var(--theme-text)] placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none text-xs rounded-lg block w-44 p-2 cursor-pointer" title="Update role for {{ user.firstName }}">
+                                    <option value="Candidate">Candidate</option>
+                                    <option value="Recruiter">Recruiter</option>
+                                    <option value="HiringManager">Hiring Manager</option>
+                                    <option value="Admin">Admin</option>
+                                </select>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. ROLES & PERMISSIONS TAB -->
+    <div *ngIf="activeTab === 'permissions'" class="space-y-6">
+        <div class="card-panel p-6 rounded-3xl animate-fade-in-up">
+            <h2 class="text-xl font-bold text-[var(--theme-text)] mb-2">Role Permissions Matrix</h2>
+            <p class="text-[var(--theme-text-muted)] text-sm mb-6">Configure system privileges and module access schemes for each account tier.</p>
+
+            <div class="overflow-x-auto mb-6">
+                <table class="w-full text-left text-sm">
+                    <thead>
+                        <tr class="text-[var(--theme-text-muted)] border-b border-slate-200 dark:border-slate-800">
+                            <th class="px-6 py-4 font-semibold">Role Name</th>
+                            <th class="px-6 py-4 font-semibold text-center">User Management</th>
+                            <th class="px-6 py-4 font-semibold text-center">Post Job Openings</th>
+                            <th class="px-6 py-4 font-semibold text-center">Schedule Interviews</th>
+                            <th class="px-6 py-4 font-semibold text-center">Make Hiring Decisions</th>
+                            <th class="px-6 py-4 font-semibold text-center">Access Analytics</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let rp of rolePermissions" class="border-b border-slate-900 transition-colors hover:bg-slate-900/[0.01]">
+                            <td class="px-6 py-4 text-[var(--theme-text)] font-bold">{{ rp.role }}</td>
+                            <td class="px-6 py-4 text-center">
+                                <input type="checkbox" [(ngModel)]="rp.manageUsers" class="rounded border-slate-200 dark:border-slate-800 bg-slate-900 text-cyan-400 w-4 h-4 cursor-pointer" title="Toggle Manage Users permission" />
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                <input type="checkbox" [(ngModel)]="rp.postJobs" class="rounded border-slate-200 dark:border-slate-800 bg-slate-900 text-cyan-400 w-4 h-4 cursor-pointer" title="Toggle Post Jobs permission" />
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                <input type="checkbox" [(ngModel)]="rp.scheduleInterviews" class="rounded border-slate-200 dark:border-slate-800 bg-slate-900 text-cyan-400 w-4 h-4 cursor-pointer" title="Toggle Schedule Interviews permission" />
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                <input type="checkbox" [(ngModel)]="rp.hiringDecision" class="rounded border-slate-200 dark:border-slate-800 bg-slate-900 text-cyan-400 w-4 h-4 cursor-pointer" title="Toggle Hiring Decisions permission" />
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                <input type="checkbox" [(ngModel)]="rp.viewAnalytics" class="rounded border-slate-200 dark:border-slate-800 bg-slate-900 text-cyan-400 w-4 h-4 cursor-pointer" title="Toggle Access Analytics permission" />
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="flex justify-end">
+                <button (click)="savePermissions()" class="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-[var(--theme-text)] text-sm font-semibold transition-all shadow-lg shadow-blue-500/10">
+                    Save Permission Scheme
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. ORGANIZATION & DEPARTMENTS TAB -->
+    <div *ngIf="activeTab === 'org'" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Left Profile Card -->
+        <div class="lg:col-span-1 space-y-6">
+            <div class="card-panel p-6 rounded-3xl animate-fade-in-up">
+                <h2 class="text-xl font-bold text-[var(--theme-text)] mb-6">Company Profile</h2>
+
+                <form class="space-y-4">
+                    <div>
+                        <label for="companyName" class="block text-xs font-semibold text-[var(--theme-text-muted)] uppercase tracking-wider mb-1">Company Name</label>
+                        <input id="companyName" type="text" [(ngModel)]="companyName" name="companyName" class="card-panel text-[var(--theme-text)] placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none w-full text-sm rounded-lg px-4 py-2" placeholder="e.g. TalentAI Corp" title="Company Name" />
+                    </div>
+                    <div>
+                        <label for="companyHQ" class="block text-xs font-semibold text-[var(--theme-text-muted)] uppercase tracking-wider mb-1">Headquarters</label>
+                        <input id="companyHQ" type="text" [(ngModel)]="companyHQ" name="companyHQ" class="card-panel text-[var(--theme-text)] placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none w-full text-sm rounded-lg px-4 py-2" placeholder="e.g. San Francisco, CA" title="Headquarters" />
+                    </div>
+                    <div>
+                        <label for="headcount" class="block text-xs font-semibold text-[var(--theme-text-muted)] uppercase tracking-wider mb-1">Total Headcount</label>
+                        <input id="headcount" type="number" [(ngModel)]="headcount" name="headcount" class="card-panel text-[var(--theme-text)] placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none w-full text-sm rounded-lg px-4 py-2" title="Total Headcount" />
+                    </div>
+                    <div>
+                        <label for="website" class="block text-xs font-semibold text-[var(--theme-text-muted)] uppercase tracking-wider mb-1">Website URL</label>
+                        <input id="website" type="text" [(ngModel)]="website" name="website" class="card-panel text-[var(--theme-text)] placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none w-full text-sm rounded-lg px-4 py-2" placeholder="e.g. https://..." title="Website URL" />
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Right Departments list -->
+        <div class="lg:col-span-2 space-y-6">
+            <div class="card-panel p-6 rounded-3xl animate-fade-in-up">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h2 class="text-xl font-bold text-[var(--theme-text)]">Department Structures</h2>
+                        <p class="text-[var(--theme-text-muted)] text-xs">Organize cost centers, leadership roles, and vacancy seat capacities.</p>
+                    </div>
+                    <button (click)="openDeptModal()" class="px-4 py-2 rounded-xl bg-blue-600/10 hover:bg-blue-600/20 text-cyan-400 text-xs font-semibold border border-blue-500/20 transition-all flex items-center gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+                        Add Department
+                    </button>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                        <thead>
+                            <tr class="text-[var(--theme-text-muted)] border-b border-slate-200 dark:border-slate-800">
+                                <th class="px-4 py-3 font-semibold">Code</th>
+                                <th class="px-4 py-3 font-semibold">Department</th>
+                                <th class="px-4 py-3 font-semibold">Department Head</th>
+                                <th class="px-4 py-3 font-semibold text-center">Staff Count</th>
+                                <th class="px-4 py-3 font-semibold text-center">Open Seats</th>
+                                <th class="px-4 py-3 font-semibold text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let dept of departments" class="border-b border-slate-900 transition-colors hover:bg-slate-900/[0.01]">
+                                <td class="px-4 py-3 text-cyan-400 font-bold">{{ dept.code }}</td>
+                                <td class="px-4 py-3 text-[var(--theme-text)] font-medium">{{ dept.name }}</td>
+                                <td class="px-4 py-3 text-[var(--theme-text-muted)]">{{ dept.manager }}</td>
+                                <td class="px-4 py-3 text-center text-[var(--theme-text-muted)]">{{ dept.staffCount }}</td>
+                                <td class="px-4 py-3 text-center text-[var(--theme-text-muted)]">
+                                    <span [class]="dept.vacancies > 0 ? 'text-emerald-400 font-semibold' : 'text-[var(--theme-text-muted)]'">
+                                        {{ dept.vacancies }}
+                                    </span>
+                                </td>
+                                <td class="px-4 py-3 text-right">
+                                    <button (click)="deleteDepartment(dept.id)" class="text-[var(--theme-text-muted)] hover:text-rose-400 transition-colors" title="Delete {{ dept.name }}">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. SYSTEM HEALTH MONITORING TAB -->
+    <div *ngIf="activeTab === 'monitoring'" class="space-y-8 animate-fade-in-up">
+        <!-- Telemetry Cards -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- CPU -->
+            <div class="card-panel p-6 rounded-3xl text-center relative overflow-hidden">
+                <div class="absolute top-2 right-2 w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></div>
+                <p class="text-3xl font-black text-[var(--theme-text)] mb-1">{{ cpuUsage }}%</p>
+                <p class="text-[10px] text-[var(--theme-text-muted)] font-bold uppercase tracking-wider">CPU Core Load</p>
+                <div class="w-full progress-track h-1 mt-3">
+                    <div class="h-1 rounded-full bg-blue-500 transition-all duration-500" [ngStyle]="{'width': cpuUsage + '%'}"></div>
+                </div>
+            </div>
+            <!-- RAM -->
+            <div class="card-panel p-6 rounded-3xl text-center">
+                <p class="text-3xl font-black text-[var(--theme-text)] mb-1">{{ ramUsage }} GB</p>
+                <p class="text-[10px] text-[var(--theme-text-muted)] font-bold uppercase tracking-wider">Heap Allocation</p>
+                <div class="w-full progress-track h-1 mt-3">
+                    <div class="h-1 rounded-full bg-purple-500 transition-all duration-500" [ngStyle]="{'width': ((ramUsage / 4.0) * 100) + '%'}"></div>
+                </div>
+            </div>
+            <!-- Latency -->
+            <div class="card-panel p-6 rounded-3xl text-center">
+                <p class="text-3xl font-black text-[var(--theme-text)] mb-1">{{ latency }} ms</p>
+                <p class="text-[10px] text-[var(--theme-text-muted)] font-bold uppercase tracking-wider">API Latency (RTT)</p>
+                <div class="w-full progress-track h-1 mt-3">
+                    <div class="h-1 rounded-full bg-emerald-500 transition-all duration-500" [ngStyle]="{'width': (latency * 4) + '%'}"></div>
+                </div>
+            </div>
+            <!-- DB connections -->
+            <div class="card-panel p-6 rounded-3xl text-center">
+                <p class="text-3xl font-black text-[var(--theme-text)] mb-1">{{ dbPoolActive }}</p>
+                <p class="text-[10px] text-[var(--theme-text-muted)] font-bold uppercase tracking-wider">Active DB Pools</p>
+                <div class="w-full progress-track h-1 mt-3">
+                    <div class="h-1 rounded-full bg-amber-500 transition-all duration-500" [ngStyle]="{'width': (dbPoolActive * 10) + '%'}"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Live Console logs -->
+        <div class="card-panel p-6 rounded-3xl relative overflow-hidden">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold text-[var(--theme-text)] flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
+                    Live Server Output Console
+                </h3>
+                <span class="text-[10px] bg-slate-100 dark:bg-slate-800 text-[var(--theme-text-muted)] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                    Node-1 ACTIVE
+                </span>
+            </div>
+
+            <!-- log block -->
+            <div class="bg-black/50 border border-slate-900 p-4 rounded-xl font-mono text-xs text-[var(--theme-text-muted)] h-64 overflow-y-auto space-y-1.5 scrollbar-thin">
+                <div *ngFor="let log of sysLogs" class="animate-fade-in font-mono">
+                    <span class="text-slate-600">&gt;</span> {{ log }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. SYSTEM RECRUITMENT ANALYTICS TAB -->
+    <div *ngIf="activeTab === 'analytics' && stats">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <div class="card-panel p-6 rounded-2xl text-center hover:-translate-y-1 transition-all duration-300 animate-fade-in-up border-t-2 border-blue-500">
+                <p class="text-3xl font-bold text-[var(--theme-text)] mb-1">{{ stats.totalUsers }}</p>
+                <p class="text-sm text-[var(--theme-text-muted)]">Total Users</p>
+            </div>
+            <div class="card-panel p-6 rounded-2xl text-center hover:-translate-y-1 transition-all duration-300 animate-fade-in-up border-t-2 border-blue-500">
+                <p class="text-3xl font-bold text-[var(--theme-text)] mb-1">{{ stats.totalJobs }}</p>
+                <p class="text-sm text-[var(--theme-text-muted)]">Total Jobs</p>
+            </div>
+            <div class="card-panel p-6 rounded-2xl text-center hover:-translate-y-1 transition-all duration-300 animate-fade-in-up border-t-2 border-blue-500">
+                <p class="text-3xl font-bold text-[var(--theme-text)] mb-1">{{ stats.activeJobs }}</p>
+                <p class="text-sm text-[var(--theme-text-muted)]">Active Jobs</p>
+            </div>
+            <div class="card-panel p-6 rounded-2xl text-center hover:-translate-y-1 transition-all duration-300 animate-fade-in-up border-t-2 border-blue-500">
+                <p class="text-3xl font-bold text-[var(--theme-text)] mb-1">{{ stats.totalApplications }}</p>
+                <p class="text-sm text-[var(--theme-text-muted)]">Applications</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- User Distribution -->
+            <div class="card-panel p-6 rounded-2xl animate-fade-in-up-delay">
+                <h3 class="text-lg font-semibold text-[var(--theme-text)] mb-6">User Demographics</h3>
+
+                <div class="space-y-5">
+                    <div>
+                        <div class="flex justify-between text-sm mb-2">
+                            <span class="text-[var(--theme-text-muted)]">Candidates</span>
+                            <span class="text-emerald-400 font-medium">{{ stats.totalCandidates }}</span>
+                        </div>
+                        <div class="progress-track h-2">
+                            <div class="h-2 rounded-full bg-emerald-500" [ngStyle]="{'width': ((stats.totalCandidates / stats.totalUsers) * 100) + '%'}"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-sm mb-2">
+                            <span class="text-[var(--theme-text-muted)]">Recruiters</span>
+                            <span class="text-cyan-400 font-medium">{{ stats.totalRecruiters }}</span>
+                        </div>
+                        <div class="progress-track h-2">
+                            <div class="h-2 rounded-full bg-cyan-500" [ngStyle]="{'width': ((stats.totalRecruiters / stats.totalUsers) * 100) + '%'}"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-sm mb-2">
+                            <span class="text-[var(--theme-text-muted)]">Hiring Managers</span>
+                            <span class="text-cyan-400 font-medium">{{ stats.totalHiringManagers }}</span>
+                        </div>
+                        <div class="progress-track h-2">
+                            <div class="h-2 rounded-full bg-blue-500" [ngStyle]="{'width': ((stats.totalHiringManagers / stats.totalUsers) * 100) + '%'}"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-sm mb-2">
+                            <span class="text-[var(--theme-text-muted)]">Admins</span>
+                            <span class="text-violet-400 font-medium">{{ stats.totalAdmins }}</span>
+                        </div>
+                        <div class="progress-track h-2">
+                            <div class="h-2 rounded-full bg-violet-500" [ngStyle]="{'width': ((stats.totalAdmins / stats.totalUsers) * 100) + '%'}"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Application Funnel -->
+            <div class="card-panel p-6 rounded-2xl animate-fade-in-up-delay">
+                <h3 class="text-lg font-semibold text-[var(--theme-text)] mb-6">Hiring Funnel</h3>
+
+                <div class="space-y-5">
+                    <div>
+                        <div class="flex justify-between text-sm mb-2">
+                            <span class="text-[var(--theme-text-muted)]">Applied</span>
+                            <span class="text-[var(--theme-text-muted)] font-medium">{{ stats.applicationsApplied }}</span>
+                        </div>
+                        <div class="progress-track h-2">
+                            <div class="h-2 rounded-full bg-slate-800" [ngStyle]="{'width': ((stats.applicationsApplied / (stats.totalApplications || 1)) * 100) + '%'}"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-sm mb-2">
+                            <span class="text-[var(--theme-text-muted)]">Shortlisted</span>
+                            <span class="text-cyan-400 font-medium">{{ stats.applicationsShortlisted }}</span>
+                        </div>
+                        <div class="progress-track h-2">
+                            <div class="h-2 rounded-full bg-blue-500" [ngStyle]="{'width': ((stats.applicationsShortlisted / (stats.totalApplications || 1)) * 100) + '%'}"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-sm mb-2">
+                            <span class="text-[var(--theme-text-muted)]">Interviewed</span>
+                            <span class="text-violet-400 font-medium">{{ stats.applicationsInterviewed }}</span>
+                        </div>
+                        <div class="progress-track h-2">
+                            <div class="h-2 rounded-full bg-violet-500" [ngStyle]="{'width': ((stats.applicationsInterviewed / (stats.totalApplications || 1)) * 100) + '%'}"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-sm mb-2">
+                            <span class="text-[var(--theme-text-muted)]">Hired</span>
+                            <span class="text-emerald-400 font-medium">{{ stats.applicationsHired }}</span>
+                        </div>
+                        <div class="progress-track h-2">
+                            <div class="h-2 rounded-full bg-emerald-500" [ngStyle]="{'width': ((stats.applicationsHired / (stats.totalApplications || 1)) * 100) + '%'}"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-sm mb-2">
+                            <span class="text-[var(--theme-text-muted)]">Rejected</span>
+                            <span class="text-rose-400 font-medium">{{ stats.applicationsRejected }}</span>
+                        </div>
+                        <div class="progress-track h-2">
+                            <div class="h-2 rounded-full bg-rose-500" [ngStyle]="{'width': ((stats.applicationsRejected / (stats.totalApplications || 1)) * 100) + '%'}"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 6. COMMUNICATION HUB TAB -->
+    <div *ngIf="activeTab === 'communications'" class="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fade-in mb-10">
+        <!-- Left form column -->
+        <div class="lg:col-span-1 space-y-6">
+            <div class="card-panel p-6 rounded-3xl">
+                <h3 class="text-xl font-bold text-[var(--theme-text)] mb-2 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                    Send Test Notification
+                </h3>
+                <p class="text-[var(--theme-text-muted)] text-xs mb-6">Manually dispatch email or SMS notifications to candidates for verification.</p>
+
+                <!-- Test Email Form -->
+                <div class="space-y-4 pt-2 border-t border-slate-900">
+                    <h4 class="text-sm font-semibold text-cyan-400 mb-2">Dispatch Test Email</h4>
+                    <div>
+                        <label for="testEmail" class="block text-xs font-semibold text-[var(--theme-text-muted)] uppercase tracking-wider mb-1">Recipient Email</label>
+                        <input id="testEmail" type="email" [(ngModel)]="testEmail" name="testEmail" class="card-panel text-[var(--theme-text)] placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none w-full text-sm rounded-lg px-4 py-2" placeholder="candidate@example.com" title="Recipient Email" />
+                    </div>
+                    <div>
+                        <label for="testSubject" class="block text-xs font-semibold text-[var(--theme-text-muted)] uppercase tracking-wider mb-1">Subject</label>
+                        <input id="testSubject" type="text" [(ngModel)]="testSubject" name="testSubject" class="card-panel text-[var(--theme-text)] placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none w-full text-sm rounded-lg px-4 py-2" title="Subject" />
+                    </div>
+                    <div>
+                        <label for="testBody" class="block text-xs font-semibold text-[var(--theme-text-muted)] uppercase tracking-wider mb-1">Message Body</label>
+                        <textarea id="testBody" rows="4" [(ngModel)]="testBody" name="testBody" class="card-panel text-[var(--theme-text)] placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none w-full text-sm rounded-lg px-4 py-2 resize-none" placeholder="Enter test email body..." title="Message Body"></textarea>
+                    </div>
+                    <button type="button" (click)="sendTestEmail()" [disabled]="sendingTest" class="w-full px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-[var(--theme-text)] text-sm font-semibold transition-all">
+                        {{ sendingTest ? 'Sending...' : 'Send Test Email' }}
+                    </button>
+                </div>
+
+                <!-- Test SMS Form -->
+                <div class="space-y-4 pt-6 mt-6 border-t border-slate-900">
+                    <h4 class="text-sm font-semibold text-cyan-400 mb-2">Dispatch Test SMS</h4>
+                    <div>
+                        <label for="testPhone" class="block text-xs font-semibold text-[var(--theme-text-muted)] uppercase tracking-wider mb-1">Recipient Phone Number</label>
+                        <input id="testPhone" type="text" [(ngModel)]="testPhone" name="testPhone" class="card-panel text-[var(--theme-text)] placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none w-full text-sm rounded-lg px-4 py-2" placeholder="+1234567890" title="Recipient Phone Number" />
+                    </div>
+                    <div>
+                        <label for="testSmsMsg" class="block text-xs font-semibold text-[var(--theme-text-muted)] uppercase tracking-wider mb-1">SMS Message</label>
+                        <textarea id="testSmsMsg" rows="3" [(ngModel)]="testSmsMsg" name="testSmsMsg" class="card-panel text-[var(--theme-text)] placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none w-full text-sm rounded-lg px-4 py-2 resize-none" placeholder="Enter test SMS message..." title="SMS Message"></textarea>
+                    </div>
+                    <button type="button" (click)="sendTestSms()" [disabled]="sendingTest" class="w-full px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-[var(--theme-text)] text-sm font-semibold transition-all">
+                        {{ sendingTest ? 'Sending...' : 'Send Test SMS' }}
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Logs Column -->
+        <div class="lg:col-span-2 space-y-6">
+            <div class="card-panel p-6 rounded-3xl">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h3 class="text-xl font-bold text-[var(--theme-text)]">Notification History</h3>
+                        <p class="text-[var(--theme-text-muted)] text-xs mt-0.5">Real-time status logs of communication system triggers</p>
+                    </div>
+                    <button (click)="fetchNotificationLogs()" [disabled]="loadingLogs" class="p-2 rounded-lg card-panel hover:border-slate-200 dark:border-slate-800 transition-all text-[var(--theme-text-muted)] hover:text-[var(--theme-text)]" title="Refresh notification history">
+                        <svg class="w-4 h-4" [class.animate-spin]="loadingLogs" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 15.89M21 21v-5h-.581"></path></svg>
+                    </button>
+                </div>
+
+                <div *ngIf="loadingLogs" class="text-center py-20 text-[var(--theme-text-muted)] flex justify-center gap-2">
+                    <div class="animate-spin rounded-full h-5 w-5 border-2 border-blue-500 border-t-transparent"></div>
+                    Loading log database...
+                </div>
+
+                <div *ngIf="!loadingLogs && notificationLogs.length === 0" class="text-center py-20 text-[var(--theme-text-muted)]">
+                    No notifications sent yet.
+                </div>
+
+                <div *ngIf="!loadingLogs && notificationLogs.length > 0" class="overflow-x-auto max-h-[600px] overflow-y-auto pr-1">
+                    <table class="w-full text-left text-xs border-collapse">
+                        <thead>
+                            <tr class="text-[var(--theme-text-muted)] border-b border-slate-900 pb-2">
+                                <th class="py-3 font-semibold w-16">Type</th>
+                                <th class="py-3 font-semibold">Candidate</th>
+                                <th class="py-3 font-semibold">Subject / Preview</th>
+                                <th class="py-3 font-semibold w-20 text-center">Status</th>
+                                <th class="py-3 font-semibold w-24 text-right">Sent At</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let log of notificationLogs" class="border-b border-slate-900/60 transition-colors hover:bg-slate-900/[0.01]">
+                                <td class="py-3.5">
+                                    <span [class]="'px-2 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase ' + (log.type === 'Email' ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20' : 'bg-amber-500/10 text-amber-400 border border-amber-500/20')">
+                                        {{ log.type }}
+                                    </span>
+                                </td>
+                                <td class="py-3.5">
+                                    <p class="text-[var(--theme-text)] font-medium mb-0.5">{{ log.candidateName }}</p>
+                                    <p class="text-[10px] text-[var(--theme-text-muted)] font-mono">ID: {{ log.candidateId.substring(0, 8) }}...</p>
+                                </td>
+                                <td class="py-3.5 pr-4 max-w-xs">
+                                    <p class="text-[var(--theme-text-muted)] font-semibold truncate">{{ log.subject }}</p>
+                                    <p class="text-[var(--theme-text-muted)] truncate text-[11px] mt-0.5" [title]="log.message">{{ log.message }}</p>
+                                </td>
+                                <td class="py-3.5 text-center">
+                                    <span [class]="'px-2 py-0.5 rounded-full text-[10px] font-semibold ' + (log.status === 'Sent' ? 'bg-emerald-500/15 text-emerald-400' : 'bg-rose-500/15 text-rose-400')">
+                                        {{ log.status }}
+                                    </span>
+                                </td>
+                                <td class="py-3.5 text-right text-[var(--theme-text-muted)] font-mono text-[10px]">
+                                    {{ formatDate(log.sentAt) }}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CREATE DEPARTMENT DIALOG MODAL -->
+<div *ngIf="isDeptModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm animate-fade-in">
+    <div class="card-panel p-6 rounded-3xl w-full max-w-md animate-fade-in-up">
+        <h3 class="text-2xl font-bold text-[var(--theme-text)] mb-2 flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+            Create Department
+        </h3>
+        <p class="text-[var(--theme-text-muted)] text-sm mb-6">Initialize a new department unit inside organization profile.</p>
+
+        <form (ngSubmit)="addDepartment()" class="space-y-4">
+            <div>
+                <label for="deptName" class="block text-xs font-semibold text-[var(--theme-text-muted)] uppercase tracking-wider mb-1">Department Name</label>
+                <input required id="deptName" type="text" [(ngModel)]="newDeptName" name="newDeptName" class="card-panel text-[var(--theme-text)] placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none w-full text-sm rounded-lg px-4 py-2.5" placeholder="e.g. Quality Assurance" title="Department Name" />
+            </div>
+            <div>
+                <label for="deptCode" class="block text-xs font-semibold text-[var(--theme-text-muted)] uppercase tracking-wider mb-1">Code Prefix</label>
+                <input required id="deptCode" type="text" [(ngModel)]="newDeptCode" name="newDeptCode" class="card-panel text-[var(--theme-text)] placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none w-full text-sm rounded-lg px-4 py-2.5" placeholder="e.g. QA" title="Code Prefix" />
+            </div>
+            <div>
+                <label for="deptManager" class="block text-xs font-semibold text-[var(--theme-text-muted)] uppercase tracking-wider mb-1">Department Head</label>
+                <input id="deptManager" type="text" [(ngModel)]="newDeptManager" name="newDeptManager" class="card-panel text-[var(--theme-text)] placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none w-full text-sm rounded-lg px-4 py-2.5" placeholder="e.g. Udari Erandika" title="Department Head" />
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label for="deptStaff" class="block text-xs font-semibold text-[var(--theme-text-muted)] uppercase tracking-wider mb-1">Staff Count</label>
+                    <input id="deptStaff" type="number" [(ngModel)]="newDeptStaff" name="newDeptStaff" class="card-panel text-[var(--theme-text)] placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none w-full text-sm rounded-lg px-4 py-2.5" title="Staff Count" />
+                </div>
+                <div>
+                    <label for="deptVacancies" class="block text-xs font-semibold text-[var(--theme-text-muted)] uppercase tracking-wider mb-1">Open Seats</label>
+                    <input id="deptVacancies" type="number" [(ngModel)]="newDeptVacancies" name="newDeptVacancies" class="card-panel text-[var(--theme-text)] placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none w-full text-sm rounded-lg px-4 py-2.5" title="Open Seats" />
+                </div>
+            </div>
+            <div class="flex justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
+                <button type="button" (click)="closeDeptModal()" class="px-5 py-2 rounded-xl btn-glass text-sm font-semibold">
+                    Cancel
+                </button>
+                <button type="submit" class="px-6 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-[var(--theme-text)] text-sm font-semibold transition-all">
+                    Create Department
+                </button>
+            </div>
+        </form>
+    </div>
 </div>

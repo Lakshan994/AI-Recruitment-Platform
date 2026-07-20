@@ -1,9 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MongoDB.Driver;
+using Microsoft.EntityFrameworkCore;
 using RecruitmentPlatform.API.Data;
 using RecruitmentPlatform.API.DTOs;
-using RecruitmentPlatform.API.Models;
 
 namespace RecruitmentPlatform.API.Controllers
 {
@@ -12,9 +11,9 @@ namespace RecruitmentPlatform.API.Controllers
     [Authorize(Roles = "Admin")]
     public class AdminController : ControllerBase
     {
-        private readonly MongoDbContext _context;
+        private readonly AppDbContext _context;
 
-        public AdminController(MongoDbContext context)
+        public AdminController(AppDbContext context)
         {
             _context = context;
         }
@@ -22,7 +21,10 @@ namespace RecruitmentPlatform.API.Controllers
         [HttpGet("users")]
         public async Task<IActionResult> GetUsers()
         {
-            var users = await _context.Users.Find(_ => true).SortByDescending(u => u.CreatedAt).ToListAsync();
+            var users = await _context.Users
+                .OrderByDescending(u => u.CreatedAt)
+                .ToListAsync();
+
             var response = users.Select(u => new AdminUserDto
             {
                 Id = u.Id,
@@ -42,12 +44,12 @@ namespace RecruitmentPlatform.API.Controllers
             if (!validRoles.Contains(dto.Role))
                 return BadRequest(new { message = "Invalid role." });
 
-            var user = await _context.Users.Find(u => u.Id == id).FirstOrDefaultAsync();
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
             if (user == null)
                 return NotFound(new { message = "User not found." });
 
-            var update = Builders<User>.Update.Set(u => u.Role, dto.Role);
-            await _context.Users.UpdateOneAsync(u => u.Id == id, update);
+            user.Role = dto.Role;
+            await _context.SaveChangesAsync();
 
             return Ok(new { message = $"User role updated to {dto.Role}." });
         }
@@ -55,9 +57,9 @@ namespace RecruitmentPlatform.API.Controllers
         [HttpGet("analytics")]
         public async Task<IActionResult> GetAnalytics()
         {
-            var users = await _context.Users.Find(_ => true).ToListAsync();
-            var jobs = await _context.JobPostings.Find(_ => true).ToListAsync();
-            var apps = await _context.Applications.Find(_ => true).ToListAsync();
+            var users = await _context.Users.ToListAsync();
+            var jobs = await _context.JobPostings.ToListAsync();
+            var apps = await _context.Applications.ToListAsync();
 
             var stats = new AdminAnalyticsDto
             {
@@ -66,10 +68,10 @@ namespace RecruitmentPlatform.API.Controllers
                 TotalRecruiters = users.Count(u => u.Role == "Recruiter"),
                 TotalHiringManagers = users.Count(u => u.Role == "HiringManager"),
                 TotalAdmins = users.Count(u => u.Role == "Admin"),
-                
+
                 TotalJobs = jobs.Count,
                 ActiveJobs = jobs.Count(j => j.IsActive),
-                
+
                 TotalApplications = apps.Count,
                 ApplicationsApplied = apps.Count(a => a.Status == "Applied"),
                 ApplicationsShortlisted = apps.Count(a => a.Status == "Shortlisted"),

@@ -18,8 +18,8 @@ namespace RecruitmentPlatform.API.Controllers
         private readonly AppDbContext _context;
 
         public ChatController(
-            IHttpClientFactory httpClientFactory, 
-            IConfiguration configuration, 
+            IHttpClientFactory httpClientFactory,
+            IConfiguration configuration,
             ILogger<ChatController> logger,
             AppDbContext context)
         {
@@ -66,7 +66,7 @@ namespace RecruitmentPlatform.API.Controllers
 
             var dbContextInfo = new StringBuilder();
             dbContextInfo.AppendLine("Live Platform Database Context:");
-            
+
             // Append available jobs
             dbContextInfo.AppendLine("--- ACTIVE JOB POSTINGS ---");
             if (activeJobs.Any())
@@ -101,7 +101,7 @@ namespace RecruitmentPlatform.API.Controllers
                     {
                         dbContextInfo.AppendLine($"Candidate Profile - Skills: '{profile.Skills}', Experience: '{profile.Experience}', Education: '{profile.Education}'");
                     }
-                    
+
                     dbContextInfo.AppendLine("Candidate's Applications:");
                     if (apps.Any())
                     {

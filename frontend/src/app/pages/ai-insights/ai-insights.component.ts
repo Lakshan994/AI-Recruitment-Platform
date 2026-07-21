@@ -21,8 +21,17 @@ export class AiInsightsComponent implements OnInit, AfterViewInit {
     trendsReport = '';
     trendsLoading = false;
     trendsError = '';
+    chartError = '';
 
-    @ViewChild('pieChart') pieChartRef!: ElementRef;
+    private _pieChartRef!: ElementRef;
+    @ViewChild('pieChart') set pieChart(el: ElementRef) {
+        if (el) {
+            this._pieChartRef = el;
+            this.pieChartRef = el;
+            setTimeout(() => this.renderChart(), 0);
+        }
+    }
+    pieChartRef!: ElementRef;
 
     constructor(public auth: AuthService, private api: ApiService) { }
 
@@ -32,7 +41,7 @@ export class AiInsightsComponent implements OnInit, AfterViewInit {
             this.api.getStats().subscribe({
                 next: (data) => {
                     this.stats = data;
-                    this.renderChart();
+                    setTimeout(() => this.renderChart(), 0);
                 },
                 error: (err) => console.error(err)
             });
@@ -50,6 +59,8 @@ export class AiInsightsComponent implements OnInit, AfterViewInit {
         this.activeTab = tab;
         if (tab === 'trends' && !this.trendsReport) {
             this.loadTrends();
+        } else if (tab === 'pipeline') {
+            setTimeout(() => this.renderChart(), 0);
         }
     }
 
@@ -82,42 +93,48 @@ export class AiInsightsComponent implements OnInit, AfterViewInit {
         const applied = this.stats.totalApplications - (this.stats.shortlisted + this.stats.interviewed + this.stats.hired + this.stats.rejected);
         const ctx = this.pieChartRef.nativeElement.getContext('2d');
 
-        this.chart = new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Applied', 'Shortlisted', 'Interviewed', 'Hired', 'Rejected'],
-                datasets: [{
-                    data: [
-                        Math.max(0, applied),
-                        this.stats.shortlisted,
-                        this.stats.interviewed,
-                        this.stats.hired,
-                        this.stats.rejected
-                    ],
-                    backgroundColor: [
-                        '#3b82f6', // blue
-                        '#8b5cf6', // violet
-                        '#f59e0b', // amber
-                        '#10b981', // emerald
-                        '#ef4444'  // red
-                    ],
-                    borderWidth: 0,
-                    hoverOffset: 4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'right',
-                        labels: {
-                            color: '#94a3b8' // text-slate-400
-                        }
-                    }
+        try {
+            this.chartError = '';
+            this.chart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Applied', 'Shortlisted', 'Interviewed', 'Hired', 'Rejected'],
+                    datasets: [{
+                        data: [
+                            Math.max(0, applied),
+                            this.stats.shortlisted,
+                            this.stats.interviewed,
+                            this.stats.hired,
+                            this.stats.rejected
+                        ],
+                        backgroundColor: [
+                            '#3b82f6', // blue
+                            '#8b5cf6', // violet
+                            '#f59e0b', // amber
+                            '#10b981', // emerald
+                            '#ef4444'  // red
+                        ],
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
                 },
-                cutout: '70%'
-            }
-        });
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                color: '#94a3b8' // text-slate-400
+                            }
+                        }
+                    },
+                    cutout: '70%'
+                }
+            });
+        } catch (e: any) {
+            this.chartError = e.message || 'Unknown error rendering chart';
+            console.error(e);
+        }
     }
 }

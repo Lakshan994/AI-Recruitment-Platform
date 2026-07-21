@@ -19,11 +19,13 @@ namespace RecruitmentPlatform.API.Controllers
     {
         private readonly AppDbContext _context;
         private readonly INotificationService _notificationService;
+        private readonly IAiService _aiService;
 
-        public InterviewsController(AppDbContext context, INotificationService notificationService)
+        public InterviewsController(AppDbContext context, INotificationService notificationService, IAiService aiService)
         {
             _context = context;
             _notificationService = notificationService;
+            _aiService = aiService;
         }
 
         // GET /api/interviews/job/{jobId} — Get all interviews for a job
@@ -255,6 +257,40 @@ namespace RecruitmentPlatform.API.Controllers
 
             var bytes = System.Text.Encoding.UTF8.GetBytes(sb.ToString());
             return File(bytes, "text/calendar", $"interview_{interview.Id}.ics");
+        }
+
+        // POST /api/interviews/live — Conduct Live AI Interview
+        [HttpPost("live")]
+        [Authorize(Roles = "Candidate")]
+        public async Task<IActionResult> ConductLiveInterview([FromBody] LiveInterviewRequestDto request)
+        {
+            if (request == null || string.IsNullOrWhiteSpace(request.ApplicationId))
+                return BadRequest(new { message = "Invalid request." });
+
+            var userId = User.FindFirstValue(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Sub)
+                      ?? User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized(new { message = "Invalid token." });
+
+            var application = await _context.Applications
+                .Include(a => a.JobPosting)
+                .Include(a => a.Candidate)
+                .FirstOrDefaultAsync(a => a.Id == request.ApplicationId && a.CandidateId == userId);
+
+            if (application == null)
+                return NotFound(new { message = "Application not found or access denied." });
+
+            if (application.JobPosting == null || application.Candidate == null)
+                return BadRequest(new { message = "Incomplete application data." });
+
+            var reply = await _aiService.ConductLiveInterviewAsync(
+                application.JobPosting,
+                application.Candidate,
+                request.History ?? new System.Collections.Generic.List<ChatMessageDto>(),
+                request.NewMessage);
+
+            return Ok(new LiveInterviewResponseDto { Reply = reply });
         }
     }
 }

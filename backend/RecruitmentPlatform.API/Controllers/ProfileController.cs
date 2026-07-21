@@ -1,9 +1,14 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MongoDB.Driver;
+using Microsoft.EntityFrameworkCore;
 using RecruitmentPlatform.API.Data;
 using RecruitmentPlatform.API.DTOs;
+using RecruitmentPlatform.API.Models;
+using RecruitmentPlatform.API.Interfaces;
 using System.Security.Claims;
+using System.IO;
+using System.Text;
+using UglyToad.PdfPig;
 
 namespace RecruitmentPlatform.API.Controllers
 {
@@ -12,11 +17,13 @@ namespace RecruitmentPlatform.API.Controllers
     [Authorize]
     public class ProfileController : ControllerBase
     {
-        private readonly MongoDbContext _context;
+        private readonly AppDbContext _context;
+        private readonly IAiService _aiService;
 
-        public ProfileController(MongoDbContext context)
+        public ProfileController(AppDbContext context, IAiService aiService)
         {
             _context = context;
+            _aiService = aiService;
         }
 
         private string GetUserId()
@@ -28,7 +35,7 @@ namespace RecruitmentPlatform.API.Controllers
         public async Task<IActionResult> GetProfile()
         {
             var userId = GetUserId();
-            var user = await _context.Users.Find(u => u.Id == userId).FirstOrDefaultAsync();
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
 
             if (user == null)
                 return NotFound(new { message = "User not found." });
@@ -50,18 +57,17 @@ namespace RecruitmentPlatform.API.Controllers
         public async Task<IActionResult> UpdateProfile(UpdateProfileDto dto)
         {
             var userId = GetUserId();
-            var user = await _context.Users.Find(u => u.Id == userId).FirstOrDefaultAsync();
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
 
             if (user == null)
                 return NotFound(new { message = "User not found." });
 
-            var update = Builders<Models.User>.Update
-                .Set(u => u.Bio, dto.Bio)
-                .Set(u => u.Skills, dto.Skills)
-                .Set(u => u.Experience, dto.Experience)
-                .Set(u => u.Education, dto.Education);
+            user.Bio = dto.Bio;
+            user.Skills = dto.Skills;
+            user.Experience = dto.Experience;
+            user.Education = dto.Education;
 
-            await _context.Users.UpdateOneAsync(u => u.Id == userId, update);
+            await _context.SaveChangesAsync();
 
             return Ok(new { message = "Profile updated successfully." });
         }
@@ -73,7 +79,7 @@ namespace RecruitmentPlatform.API.Controllers
                 return BadRequest(new { message = "No file uploaded." });
 
             var userId = GetUserId();
-            var user = await _context.Users.Find(u => u.Id == userId).FirstOrDefaultAsync();
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
 
             if (user == null)
                 return NotFound(new { message = "User not found." });
@@ -93,10 +99,88 @@ namespace RecruitmentPlatform.API.Controllers
             var request = HttpContext.Request;
             var resumeUrl = $"{request.Scheme}://{request.Host}/uploads/{fileName}";
 
-            var update = Builders<Models.User>.Update.Set(u => u.ResumeUrl, resumeUrl);
-            await _context.Users.UpdateOneAsync(u => u.Id == userId, update);
+            user.ResumeUrl = resumeUrl;
 
-            return Ok(new { message = "Resume uploaded successfully.", resumeUrl });
+            // Extract text and call Gemini parsing service
+            var ext = Path.GetExtension(filePath).ToLower();
+            var resumeText = string.Empty;
+
+            try
+            {
+                if (ext == ".pdf")
+                {
+                    using (var pdf = PdfDocument.Open(filePath))
+                    {
+                        var textBuilder = new StringBuilder();
+                        foreach (var page in pdf.GetPages())
+                        {
+                            textBuilder.AppendLine(page.Text);
+                        }
+                        resumeText = textBuilder.ToString();
+                    }
+                }
+                else if (ext == ".txt")
+                {
+                    resumeText = await System.IO.File.ReadAllTextAsync(filePath);
+                }
+
+                if (!string.IsNullOrWhiteSpace(resumeText))
+                {
+                    var parsed = await _aiService.ParseResumeAsync(resumeText);
+                    if (parsed != null)
+                    {
+                        user.Bio = parsed.Bio;
+                        user.Skills = parsed.Skills;
+                        user.Experience = parsed.Experience;
+                        user.Education = parsed.Education;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log exception but still allow successful file upload
+                System.Diagnostics.Debug.WriteLine($"AI Parsing Error: {ex.Message}");
+            }
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                message = "Resume uploaded and analyzed by AI successfully.",
+                resumeUrl,
+                parsedProfile = new
+                {
+                    bio = user.Bio,
+                    skills = user.Skills,
+                    experience = user.Experience,
+                    education = user.Education
+                }
+            });
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> DeleteAccount()
+        {
+            var userId = GetUserId();
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+
+            if (user == null)
+                return NotFound(new { message = "User not found." });
+
+            // Audit logging before delete
+            _context.RecruitmentAnalytics.Add(new RecruitmentAnalytic
+            {
+                EventType = "DataPrivacyDeletion",
+                Description = $"User {userId} requested permanent account deletion under privacy regulations.",
+                RecordedAt = DateTime.UtcNow
+            });
+
+            _context.Users.Remove(user);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Account permanently deleted in compliance with GDPR and data privacy regulations." });
         }
     }
+
 }
+

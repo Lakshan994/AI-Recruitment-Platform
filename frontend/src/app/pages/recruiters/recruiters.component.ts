@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService, Job, Application, Interview } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
     selector: 'app-recruiters',
@@ -53,12 +54,21 @@ export class RecruitersComponent implements OnInit {
     selectedCandidateName = '';
     candidateDocs: any[] = [];
 
-    constructor(private api: ApiService, private auth: AuthService) { }
+    constructor(private api: ApiService, private auth: AuthService, private route: ActivatedRoute) { }
 
     ngOnInit(): void {
         this.isRecruiter = this.auth.isRecruiter();
         if (this.isRecruiter) {
             this.fetchJobs();
+
+            this.route.queryParams.subscribe(params => {
+                if (params['action'] === 'post-job') {
+                    this.isFormOpen = true;
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                } else if (params['action'] === 'review') {
+                    this.isFormOpen = false;
+                }
+            });
         }
     }
 

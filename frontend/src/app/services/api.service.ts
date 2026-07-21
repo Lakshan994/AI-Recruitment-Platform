@@ -109,6 +109,21 @@ export interface AdminStats {
     applicationsRejected: number;
 }
 
+export interface ChatMessage {
+    role: string;
+    text: string;
+}
+
+export interface LiveInterviewRequest {
+    applicationId: string;
+    history: ChatMessage[];
+    newMessage: string;
+}
+
+export interface LiveInterviewResponse {
+    reply: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class ApiService {
     constructor(private http: HttpClient) { }
@@ -223,6 +238,11 @@ export class ApiService {
 
     getIcsFileUrl(interviewId: string): string {
         return `${API}/api/interviews/${interviewId}/ics`;
+    }
+
+    conductLiveInterview(applicationId: string, history: ChatMessage[], newMessage: string): Observable<LiveInterviewResponse> {
+        const request: LiveInterviewRequest = { applicationId, history, newMessage };
+        return this.http.post<LiveInterviewResponse>(`${API}/api/interviews/live`, request);
     }
 
     // Communication

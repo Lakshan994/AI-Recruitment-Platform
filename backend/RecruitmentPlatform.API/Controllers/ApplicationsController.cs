@@ -252,7 +252,7 @@ namespace RecruitmentPlatform.API.Controllers
 
             application.EvaluationScore = dto.EvaluationScore;
             application.InterviewFeedback = dto.InterviewFeedback;
-            
+
             await _context.SaveChangesAsync();
 
             return Ok(new { message = "Evaluation and feedback saved successfully." });
@@ -289,7 +289,7 @@ namespace RecruitmentPlatform.API.Controllers
         {
             var userId = User.FindFirstValue(JwtRegisteredClaimNames.Sub)
                       ?? User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var role = User.FindFirstValue("role");
+            var role = User.FindFirstValue(ClaimTypes.Role);
 
             if (role == "Recruiter")
             {

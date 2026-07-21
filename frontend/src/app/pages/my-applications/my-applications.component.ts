@@ -11,7 +11,9 @@ import { ApiService, Application } from '../../services/api.service';
 })
 export class MyApplicationsComponent implements OnInit {
   applications: Application[] = [];
+  interviews: any[] = [];
   loading = true;
+  loadingInterviews = false;
 
   constructor(private api: ApiService) {}
 
@@ -26,6 +28,44 @@ export class MyApplicationsComponent implements OnInit {
         this.loading = false;
       }
     });
+    this.fetchMyInterviews();
+  }
+
+  fetchMyInterviews(): void {
+    this.loadingInterviews = true;
+    this.api.getMyInterviews().subscribe({
+      next: (data) => {
+        this.interviews = data;
+        this.loadingInterviews = false;
+      },
+      error: () => {
+        this.interviews = [];
+        this.loadingInterviews = false;
+      }
+    });
+  }
+
+  syncGoogle(interviewId: string): void {
+    this.api.getGoogleCalendarLink(interviewId).subscribe({
+      next: (res) => {
+        if (res?.url) window.open(res.url, '_blank');
+      },
+      error: (err) => console.error('Failed to get Google Calendar link', err)
+    });
+  }
+
+  syncOutlook(interviewId: string): void {
+    this.api.getOutlookCalendarLink(interviewId).subscribe({
+      next: (res) => {
+        if (res?.url) window.open(res.url, '_blank');
+      },
+      error: (err) => console.error('Failed to get Outlook Calendar link', err)
+    });
+  }
+
+  downloadIcs(interviewId: string): void {
+    const url = this.api.getIcsFileUrl(interviewId);
+    window.open(url, '_blank');
   }
 
   getStatusColor(status: string): string {

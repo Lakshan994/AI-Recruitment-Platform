@@ -181,6 +181,4 @@ namespace RecruitmentPlatform.API.Controllers
             return Ok(new { message = "Account permanently deleted in compliance with GDPR and data privacy regulations." });
         }
     }
-
 }
-

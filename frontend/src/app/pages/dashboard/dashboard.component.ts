@@ -15,7 +15,8 @@ interface DashboardAction {
   selector: 'app-dashboard',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './dashboard.component.html'
+  templateUrl: './dashboard.component.html',
+  styleUrl: './dashboard.component.css'
 })
 export class DashboardComponent implements OnInit {
   user: UserData | null = null;
@@ -32,6 +33,28 @@ export class DashboardComponent implements OnInit {
   ) {}
 
   adminStats: AdminStats | null = null;
+
+  trackerValue: string = '02:35';
+  trackerProgress: number = 65;
+  progressHours: number = 6.1;
+  progressChart: number[] = [30, 45, 20, 80, 95, 60, 40];
+  calendarDays: number[] = [22, 23, 24, 25, 26, 27];
+  calendarEvents = [
+    { title: 'Weekly Sync', time: '08:00 AM', duration: '1h', attendees: 3 },
+    { title: 'AI Match Session', time: '10:30 AM', duration: '1.5h', attendees: 2 }
+  ];
+  onboardingTasks = [
+    { title: 'Verify Email & Profile Info', checked: true },
+    { title: 'Upload Resumes & Credentials', checked: true },
+    { title: 'Review Match Scores', checked: false },
+    { title: 'Apply to Selected Openings', checked: false },
+    { title: 'Schedule Automated Interview', checked: false }
+  ];
+
+  get onboardingProgress(): number {
+    const completed = this.onboardingTasks.filter(t => t.checked).length;
+    return Math.round((completed / this.onboardingTasks.length) * 100);
+  }
 
   ngOnInit(): void {
     this.user = this.auth.getUser();
@@ -71,8 +94,8 @@ export class DashboardComponent implements OnInit {
         this.title = 'Recruiter Dashboard';
         this.subtitle = `Welcome back, ${name}! Manage your active job postings and review AI-scored candidates.`;
         this.actions = [
-          { title: 'Manage Jobs', desc: 'Post new positions and edit existing ones', color: 'from-blue-600 to-purple-600', link: '/recruiters' },
-          { title: 'Review Candidates', desc: 'View AI matches and manage candidate pipelines', color: 'from-purple-600 to-cyan-500', link: '/recruiters' },
+          { title: 'Manage Jobs', desc: 'Post new positions and edit existing ones', color: 'from-blue-600 to-purple-600', link: '/recruiters?action=post-job' },
+          { title: 'Review Candidates', desc: 'View AI matches and manage candidate pipelines', color: 'from-purple-600 to-cyan-500', link: '/recruiters?action=review' },
         ];
         break;
       case 'HiringManager':
@@ -132,6 +155,6 @@ export class DashboardComponent implements OnInit {
   }
 
   navigate(link: string): void {
-    this.router.navigate([link]);
+    this.router.navigateByUrl(link);
   }
 }

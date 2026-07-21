@@ -50,8 +50,10 @@ namespace RecruitmentPlatform.API.Services
 
                 return true;
             }
-            catch
+            catch (Exception ex)
             {
+                Console.WriteLine($"EMAIL ERROR: {ex.Message}");
+                Console.WriteLine(ex.StackTrace);
                 return false;
             }
         }

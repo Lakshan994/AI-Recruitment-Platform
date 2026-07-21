@@ -7,8 +7,11 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<Compile Include="..\..\..\Users\LENOVO\Downloads\AI-Platform - Tharaka\AI-Platform - Tharaka\AI-Platform\RecruitmentPlatform.API\DTOs\LiveInterviewDtos.cs" Link="Controllers\LiveInterviewDtos.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.7" />
-		<PackageReference Include="Microsoft.OpenApi" Version="3.9.0" />
 	</ItemGroup>
 
 </Project>

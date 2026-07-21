@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ApiService, Job } from '../../services/api.service';
+import { ApiService, Job, JobRecommendation } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
@@ -12,8 +12,11 @@ import { AuthService } from '../../services/auth.service';
 })
 export class FindJobsComponent implements OnInit {
   jobs: Job[] = [];
+  recommendedJobs: JobRecommendation[] = [];
+  activeTab: 'all' | 'recommended' = 'all';
   search = '';
   loading = true;
+  loadingRecommendations = false;
   appliedJobs = new Set<string>();
   applyingTo: string | null = null;
   message = '';
@@ -23,12 +26,15 @@ export class FindJobsComponent implements OnInit {
     public auth: AuthService
   ) {}
 
+
   ngOnInit(): void {
     this.fetchJobs();
     if (this.auth.isCandidate() && this.auth.getToken()) {
       this.fetchMyApplications();
+      this.fetchRecommendations();
     }
   }
+
 
   fetchJobs(query = ''): void {
     this.loading = true;
@@ -44,6 +50,28 @@ export class FindJobsComponent implements OnInit {
       error: () => {}
     });
   }
+
+  fetchRecommendations(): void {
+    this.loadingRecommendations = true;
+    this.api.getJobRecommendations().subscribe({
+      next: (data) => {
+        this.recommendedJobs = data;
+        this.loadingRecommendations = false;
+      },
+      error: () => {
+        this.recommendedJobs = [];
+        this.loadingRecommendations = false;
+      }
+    });
+  }
+
+  switchTab(tab: 'all' | 'recommended'): void {
+    this.activeTab = tab;
+    if (tab === 'recommended') {
+      this.fetchRecommendations();
+    }
+  }
+
 
   onSearch(): void {
     this.fetchJobs(this.search);

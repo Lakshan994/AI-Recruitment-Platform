@@ -1,0 +1,86 @@
+<div class="min-h-[90vh] flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden">
+    <div class="orb orb-blue w-[500px] h-[500px] top-[10%] left-[10%] animate-pulse-glow"></div>
+    <div class="orb orb-violet w-[400px] h-[400px] bottom-[10%] right-[10%] animate-pulse-glow ext-style-cffe648e"></div>
+
+    <div class="sm:mx-auto sm:w-full sm:max-w-md relative z-10 animate-fade-in-up mt-8">
+        <div class="glass-card py-10 px-4 sm:rounded-3xl sm:px-10 ext-style-bc9523fd backdrop-blur-md bg-white/90 dark:bg-slate-900/90 shadow-[0_8px_32px_rgba(0,0,0,0.05)] border dark:border-slate-800">
+            <a routerLink="/" class="flex justify-center mb-6 group">
+                <div class="w-14 h-14 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 ext-style-8e5f586b">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8" /><rect width="16" height="12" x="4" y="8" rx="2" /><path d="M2 14h2" /><path d="M20 14h2" /><path d="M15 13v2" /><path d="M9 13v2" /></svg>
+                </div>
+            </a>
+            <h2 class="text-center text-3xl font-extrabold text-[var(--theme-text)]">
+                {{ isLogin ? 'Welcome Back' : 'Create an Account' }}
+            </h2>
+            <p class="mt-2 mb-8 text-center text-sm text-[var(--theme-text-muted)]">
+                Or
+                <button type="button" (click)="toggleMode()" class="font-medium text-blue-400 hover:text-blue-300 transition-colors">
+                    {{ isLogin ? 'create a new account' : 'sign in to existing account' }}
+                </button>
+            </p>
+            <form class="space-y-6" (ngSubmit)="onSubmit()">
+                <div *ngIf="error" [class]="'px-4 py-3 rounded-xl text-sm flex items-center gap-2 ' + (error.includes('successful') ? 'text-blue-400' : 'text-blue-400')" [ngStyle]="error.includes('successful') ? {'background': 'rgba(16,185,129,0.1)', 'border': '1px solid rgba(16,185,129,0.2)'} : {'background': 'rgba(244,63,94,0.1)', 'border': '1px solid rgba(244,63,94,0.2)'}">
+                    <div [class]="'w-1.5 h-1.5 rounded-full shrink-0 ' + (error.includes('successful') ? 'bg-blue-400' : 'bg-blue-400')"></div>
+                    {{ error }}
+                </div>
+
+                <div *ngIf="!isLogin" class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label for="firstName" class="block text-sm font-medium text-[var(--theme-text-muted)] mb-1">First Name</label>
+                        <input id="firstName" placeholder="First Name" required [(ngModel)]="firstName" name="firstName" class="glass-card text-[var(--theme-text)] placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none appearance-none block w-full px-4 py-3 rounded-xl shadow-sm" />
+                    </div>
+                    <div>
+                        <label for="lastName" class="block text-sm font-medium text-[var(--theme-text-muted)] mb-1">Last Name</label>
+                        <input id="lastName" placeholder="Last Name" required [(ngModel)]="lastName" name="lastName" class="glass-card text-[var(--theme-text)] placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none appearance-none block w-full px-4 py-3 rounded-xl shadow-sm" />
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-[var(--theme-text-muted)] mb-1">Email address</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="text-[var(--theme-text-muted)]" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2" /><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" /></svg>
+                        </div>
+                        <input required type="email" [(ngModel)]="email" name="email" class="glass-card text-[var(--theme-text)] placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none appearance-none block w-full pl-11 pr-4 py-3 rounded-xl shadow-sm" placeholder="you@example.com" />
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-[var(--theme-text-muted)] mb-1">Password</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="text-[var(--theme-text-muted)]" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+                        </div>
+                        <input required type="password" [(ngModel)]="password" name="password" class="glass-card text-[var(--theme-text)] placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none appearance-none block w-full pl-11 pr-4 py-3 rounded-xl shadow-sm" placeholder="••••••••" />
+                    </div>
+                </div>
+
+                <div *ngIf="!isLogin">
+                    <label class="block text-sm font-medium text-[var(--theme-text-muted)] mb-2">I am a...</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button type="button" (click)="role='Candidate'" [class]="'py-3 px-2 rounded-xl flex items-center justify-center transition-all text-xs font-semibold ' + (role === 'Candidate' ? 'text-blue-400' : 'text-[var(--theme-text-muted)] hover:text-[var(--theme-text)] bg-slate-100 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700')" [ngStyle]="role === 'Candidate' ? {'background': 'rgba(59,130,246,0.1)', 'border': '1px solid rgba(59,130,246,0.3)', 'box-shadow': '0 0 15px rgba(59,130,246,0.1)'} : {}">
+                            Candidate
+                        </button>
+                        <button type="button" (click)="role='Recruiter'" [class]="'py-3 px-2 rounded-xl flex items-center justify-center transition-all text-xs font-semibold ' + (role === 'Recruiter' ? 'text-blue-400' : 'text-[var(--theme-text-muted)] hover:text-[var(--theme-text)] bg-slate-100 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700')" [ngStyle]="role === 'Recruiter' ? {'background': 'rgba(139,92,246,0.1)', 'border': '1px solid rgba(139,92,246,0.3)', 'box-shadow': '0 0 15px rgba(139,92,246,0.1)'} : {}">
+                            Recruiter
+                        </button>
+                        <button type="button" (click)="role='HiringManager'" [class]="'py-3 px-2 rounded-xl flex items-center justify-center transition-all text-xs font-semibold ' + (role === 'HiringManager' ? 'text-blue-400' : 'text-[var(--theme-text-muted)] hover:text-[var(--theme-text)] bg-slate-100 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700')" [ngStyle]="role === 'HiringManager' ? {'background': 'rgba(6,182,212,0.1)', 'border': '1px solid rgba(6,182,212,0.3)', 'box-shadow': '0 0 15px rgba(6,182,212,0.1)'} : {}">
+                            Hiring Manager
+                        </button>
+                        <button type="button" (click)="role='Admin'" [class]="'py-3 px-2 rounded-xl flex items-center justify-center transition-all text-xs font-semibold ' + (role === 'Admin' ? 'text-blue-400' : 'text-[var(--theme-text-muted)] hover:text-[var(--theme-text)] bg-slate-100 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700')" [ngStyle]="role === 'Admin' ? {'background': 'rgba(245,158,11,0.1)', 'border': '1px solid rgba(245,158,11,0.3)', 'box-shadow': '0 0 15px rgba(245,158,11,0.1)'} : {}">
+                            Admin
+                        </button>
+                    </div>
+                </div>
+
+                <div>
+                    <button type="submit" [disabled]="loading"
+                            class="w-full flex justify-center items-center gap-2 py-3.5 px-4 rounded-xl text-sm font-bold text-[var(--theme-text)] gradient-brand-btn focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all disabled:opacity-50">
+                        {{ isLogin ? 'Sign In' : 'Create Account' }}
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></svg>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

@@ -25,6 +25,22 @@ export class HiringManagerComponent implements OnInit {
     submittingEval = false;
     generatingFeedback = false;
 
+    // Schedule Modal
+    isScheduleOpen = false;
+    selectedCandidateForInterview: Application | null = null;
+    interviewDate = '';
+    interviewLocation = 'Online (Google Meet)';
+    interviewMeetingLink = 'https://meet.google.com/abc-defg-hij';
+    loading = false;
+
+    // Communication Modal
+    isCommOpen = false;
+    selectedCandidateForComm: Application | null = null;
+    commType: 'email' | 'sms' = 'email';
+    commSubject = '';
+    commBody = '';
+    commMessage = '';
+
     constructor(private api: ApiService, private datePipe: DatePipe) { }
 
     ngOnInit(): void {
@@ -142,6 +158,113 @@ export class HiringManagerComponent implements OnInit {
             case 'Hired': return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
             case 'Rejected': return 'bg-rose-500/10 text-rose-400 border-rose-500/20';
             default: return 'bg-slate-500/10 text-slate-400 border-slate-500/20';
+        }
+    }
+
+    // Interview Schedule Dialog
+    openScheduleModal(candidate: Application): void {
+        this.selectedCandidateForInterview = candidate;
+        // set default date/time to tomorrow
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        tomorrow.setHours(10, 0, 0, 0);
+        // Format to YYYY-MM-DDThh:mm
+        const offset = tomorrow.getTimezoneOffset();
+        const localTomorrow = new Date(tomorrow.getTime() - (offset * 60 * 1000));
+        this.interviewDate = localTomorrow.toISOString().slice(0, 16);
+
+        this.interviewLocation = 'Online (Google Meet)';
+        this.interviewMeetingLink = 'https://meet.google.com/abc-defg-hij';
+        this.isScheduleOpen = true;
+    }
+
+    closeScheduleModal(): void {
+        this.isScheduleOpen = false;
+        this.selectedCandidateForInterview = null;
+    }
+
+    submitSchedule(): void {
+        if (!this.selectedCandidateForInterview) return;
+
+        this.loading = true;
+        this.api.scheduleInterview(
+            this.selectedCandidateForInterview.candidateId,
+            this.selectedCandidateForInterview.jobPostingId,
+            this.interviewDate,
+            this.interviewLocation,
+            this.interviewMeetingLink
+        ).subscribe({
+            next: (res) => {
+                this.successMessage = res.message || 'Interview scheduled successfully!';
+                this.closeScheduleModal();
+                this.loadApplications();
+                this.loading = false;
+                setTimeout(() => this.successMessage = '', 3000);
+            },
+            error: (err) => {
+                this.error = err.error?.message || 'Failed to schedule interview.';
+                this.loading = false;
+                setTimeout(() => this.error = '', 3000);
+            }
+        });
+    }
+
+    // Communication Modal
+    openCommModal(candidate: Application, type: 'email' | 'sms'): void {
+        this.selectedCandidateForComm = candidate;
+        this.commType = type;
+        this.commSubject = `TalentAI - Regarding your application`;
+        this.commBody = `Hi ${candidate.candidateName},\n\nWe reviewed your profile and would like to discuss further. Let us know your availability.\n\nBest regards,\nHiring Team`;
+        this.commMessage = `Hi ${candidate.candidateName}, thank you for your application. We would like to schedule a call. Please check your email for details.`;
+        this.isCommOpen = true;
+    }
+
+    closeCommModal(): void {
+        this.isCommOpen = false;
+        this.selectedCandidateForComm = null;
+    }
+
+    submitComm(): void {
+        if (!this.selectedCandidateForComm) return;
+
+        this.loading = true;
+        if (this.commType === 'email') {
+            this.api.sendEmail(
+                this.selectedCandidateForComm.candidateId,
+                this.selectedCandidateForComm.candidateEmail,
+                this.commSubject,
+                this.commBody
+            ).subscribe({
+                next: (res) => {
+                    this.successMessage = res.Message || 'Email sent successfully!';
+                    this.closeCommModal();
+                    this.loading = false;
+                    setTimeout(() => this.successMessage = '', 3000);
+                },
+                error: (err) => {
+                    this.error = err.error?.Message || 'Failed to send email.';
+                    this.loading = false;
+                    setTimeout(() => this.error = '', 3000);
+                }
+            });
+        } else {
+            this.api.sendSms(
+                this.selectedCandidateForComm.candidateId,
+                '',
+                this.commMessage
+            ).subscribe({
+                next: (res) => {
+                    this.successMessage = res.Message || 'SMS sent successfully!';
+                    this.closeCommModal();
+                    this.loading = false;
+                    setTimeout(() => this.successMessage = '', 3000);
+                },
+                error: (err) => {
+                    this.error = err.error?.Message || 'Failed to send SMS.';
+                    this.loading = false;
+                    setTimeout(() => this.error = '', 3000);
+                }
+            });
         }
     }
 

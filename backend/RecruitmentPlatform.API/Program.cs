@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -67,30 +66,13 @@ app.UseHttpsRedirection();
 
 app.UseStaticFiles();
 
-=======
-var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
-
-builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
-
-var app = builder.Build();
-
->>>>>>> origin/dev
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
 
-<<<<<<< HEAD
 app.UseAuthentication();
-=======
-app.UseHttpsRedirection();
-
->>>>>>> origin/dev
 app.UseAuthorization();
 
 app.MapControllers();

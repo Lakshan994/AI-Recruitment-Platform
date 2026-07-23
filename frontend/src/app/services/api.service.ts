@@ -245,6 +245,10 @@ export class ApiService {
         return this.http.post<LiveInterviewResponse>(`${API}/api/interviews/live`, request);
     }
 
+    finishLiveInterview(applicationId: string): Observable<any> {
+        return this.http.post(`${API}/api/interviews/live/${applicationId}/finish`, {});
+    }
+
     // Communication
     sendEmail(candidateId: string, toEmail: string, subject: string, body: string): Observable<any> {
         return this.http.post(`${API}/api/communication/email`, { candidateId, toEmail, subject, body });

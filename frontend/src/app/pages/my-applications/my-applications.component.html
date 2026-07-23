@@ -52,7 +52,7 @@
 					</span>
 				</div>
 
-				<div class="mt-5">
+				<div class="mt-5" *ngIf="app.status === 'Applied'">
 					<a [routerLink]="['/live-interview', app.id]" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition-all shadow-md hover:shadow-lg shadow-blue-500/20 hover:-translate-y-0.5">
 						<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
 						Start Live AI Interview

@@ -102,7 +102,15 @@ export class LiveInterviewComponent implements OnInit {
   finishInterview(): void {
     if (confirm('Are you sure you want to finish the interview? You can return to your dashboard.')) {
       this.isFinished = true;
-      this.router.navigate(['/my-applications']);
+      this.apiService.finishLiveInterview(this.applicationId).subscribe({
+        next: () => {
+          this.router.navigate(['/my-applications']);
+        },
+        error: (err) => {
+          console.error('Failed to finish interview:', err);
+          this.router.navigate(['/my-applications']);
+        }
+      });
     }
   }
 

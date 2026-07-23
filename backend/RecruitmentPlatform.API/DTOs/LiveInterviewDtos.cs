@@ -10,7 +10,6 @@ namespace RecruitmentPlatform.API.DTOs
 
         public List<ChatMessageDto> History { get; set; } = new();
 
-        [Required]
         public string NewMessage { get; set; } = string.Empty;
     }
 

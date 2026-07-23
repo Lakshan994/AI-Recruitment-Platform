@@ -292,5 +292,28 @@ namespace RecruitmentPlatform.API.Controllers
 
             return Ok(new LiveInterviewResponseDto { Reply = reply });
         }
+
+        // POST /api/interviews/live/{applicationId}/finish — Finish Live AI Interview
+        [HttpPost("live/{applicationId}/finish")]
+        [Authorize(Roles = "Candidate")]
+        public async Task<IActionResult> FinishLiveInterview(string applicationId)
+        {
+            var userId = User.FindFirstValue(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Sub)
+                      ?? User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized(new { message = "Invalid token." });
+
+            var application = await _context.Applications
+                .FirstOrDefaultAsync(a => a.Id == applicationId && a.CandidateId == userId);
+
+            if (application == null)
+                return NotFound(new { message = "Application not found or access denied." });
+
+            application.Status = "Interviewed";
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Interview finished." });
+        }
     }
 }

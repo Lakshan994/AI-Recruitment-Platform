@@ -1,4 +1,4 @@
-import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -18,6 +18,10 @@ export class LiveInterviewComponent implements OnInit {
   isTyping: boolean = false;
   error: string = '';
   isFinished: boolean = false;
+  
+  timeRemaining: number = 600; // 10 minutes in seconds
+  timerInterval: any;
+  formattedTime: string = '10:00';
 
   @ViewChild('chatContainer') chatContainer!: ElementRef;
 
@@ -39,9 +43,49 @@ export class LiveInterviewComponent implements OnInit {
     });
   }
 
+  ngOnDestroy(): void {
+    this.clearTimer();
+  }
+
+  private startTimer(): void {
+    this.timerInterval = setInterval(() => {
+      if (this.timeRemaining > 0) {
+        this.timeRemaining--;
+        this.updateFormattedTime();
+      } else {
+        this.clearTimer();
+        this.autoFinishInterview();
+      }
+    }, 1000);
+  }
+
+  private updateFormattedTime(): void {
+    const minutes = Math.floor(this.timeRemaining / 60);
+    const seconds = this.timeRemaining % 60;
+    this.formattedTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  }
+
+  private clearTimer(): void {
+    if (this.timerInterval) {
+      clearInterval(this.timerInterval);
+    }
+  }
+
+  private autoFinishInterview(): void {
+    if (!this.isFinished) {
+      alert('Time is up! The interview has automatically concluded.');
+      this.isFinished = true;
+      this.apiService.finishLiveInterview(this.applicationId).subscribe({
+        next: () => this.router.navigate(['/my-applications']),
+        error: () => this.router.navigate(['/my-applications'])
+      });
+    }
+  }
+
   startInterview(): void {
     this.isTyping = true;
     this.error = '';
+    this.startTimer();
     // Send an initial empty message to trigger the first question
     this.apiService.conductLiveInterview(this.applicationId, [], '').subscribe({
       next: (res) => {

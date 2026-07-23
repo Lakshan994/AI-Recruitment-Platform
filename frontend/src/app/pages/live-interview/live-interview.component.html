@@ -15,9 +15,15 @@
           </p>
         </div>
       </div>
-      <button (click)="finishInterview()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg text-sm font-semibold transition-colors">
-        Finish & Exit
-      </button>
+      <div class="flex items-center gap-4">
+        <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800" [ngClass]="{'text-red-500 animate-pulse': timeRemaining < 60, 'text-slate-700 dark:text-slate-300': timeRemaining >= 60}">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <span class="font-bold font-mono tracking-wider">{{ formattedTime }}</span>
+        </div>
+        <button (click)="finishInterview()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg text-sm font-semibold transition-colors">
+          Finish & Exit
+        </button>
+      </div>
     </div>
   </header>
 

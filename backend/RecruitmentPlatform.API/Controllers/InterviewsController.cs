@@ -79,7 +79,7 @@ namespace RecruitmentPlatform.API.Controllers
                 JobPostingId = dto.JobPostingId,
                 InterviewDate = dto.InterviewDate,
                 Location = dto.Location,
-                MeetingLink = dto.MeetingLink,
+                MeetingLink = $"https://meet.jit.si/RecruitmentPlatform_Interview_{Guid.NewGuid():N}",
                 Status = "Scheduled",
                 ReminderSent = false
             };

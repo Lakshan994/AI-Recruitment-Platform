@@ -35,7 +35,7 @@ namespace RecruitmentPlatform.API.Services
                 throw new InvalidOperationException("AI Service is not fully configured.");
             }
 
-            var url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={apiKey}";
+            var url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key={apiKey}";
             
             // Reusing the model structure from ChatModels
             var geminiRequest = new
@@ -63,7 +63,7 @@ namespace RecruitmentPlatform.API.Services
                 {
                     var error = await response.Content.ReadAsStringAsync();
                     _logger.LogError("Error response from Gemini API: {StatusCode} - {Error}", response.StatusCode, error);
-                    throw new HttpRequestException($"Gemini API request failed: {response.StatusCode}");
+                    throw new HttpRequestException($"Gemini API request failed: {response.StatusCode}. Details: {error}");
                 }
 
                 var responseString = await response.Content.ReadAsStringAsync();
@@ -297,7 +297,7 @@ Instructions:
                 throw new InvalidOperationException("AI Service is not fully configured.");
             }
 
-            var url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={apiKey}";
+            var url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key={apiKey}";
 
             var contents = new List<object>();
             

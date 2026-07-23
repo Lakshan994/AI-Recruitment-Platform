@@ -15,6 +15,9 @@ export class SignInComponent implements OnInit {
     isLogin = true;
     email = '';
     password = '';
+    confirmPassword = '';
+    passwordStrength = 0;
+    passwordStrengthLabel = '';
     firstName = '';
     lastName = '';
     role = 'Candidate';
@@ -43,6 +46,29 @@ export class SignInComponent implements OnInit {
     toggleMode(): void {
         this.isLogin = !this.isLogin;
         this.error = '';
+        this.password = '';
+        this.confirmPassword = '';
+        this.checkPasswordStrength();
+    }
+
+    checkPasswordStrength(): void {
+        if (!this.password) {
+            this.passwordStrength = 0;
+            this.passwordStrengthLabel = '';
+            return;
+        }
+
+        let score = 0;
+        if (this.password.length > 7) score += 25;
+        if (/[A-Z]/.test(this.password)) score += 25;
+        if (/[0-9]/.test(this.password)) score += 25;
+        if (/[^A-Za-z0-9]/.test(this.password)) score += 25;
+
+        this.passwordStrength = score;
+
+        if (score < 50) this.passwordStrengthLabel = 'Weak';
+        else if (score < 100) this.passwordStrengthLabel = 'Medium';
+        else this.passwordStrengthLabel = 'Strong';
     }
 
     onSubmit(): void {
@@ -61,7 +87,18 @@ export class SignInComponent implements OnInit {
                 }
             });
         } else {
-            this.api.register(this.email, this.password, this.firstName, this.lastName, this.role).subscribe({
+            if (this.password !== this.confirmPassword) {
+                this.error = 'Passwords do not match.';
+                this.loading = false;
+                return;
+            }
+            if (this.passwordStrength < 100) {
+                this.error = 'Password must be strong (at least 8 chars, uppercase, number, and special character).';
+                this.loading = false;
+                return;
+            }
+
+            this.api.register(this.email, this.password, this.confirmPassword, this.firstName, this.lastName, this.role).subscribe({
                 next: () => {
                     this.isLogin = true;
                     this.error = 'Registration successful! Please sign in.';

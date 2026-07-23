@@ -133,8 +133,8 @@ export class ApiService {
         return this.http.post<AuthResponse>(`${API}/api/auth/login`, { email, password });
     }
 
-    register(email: string, password: string, firstName: string, lastName: string, role: string): Observable<any> {
-        return this.http.post(`${API}/api/auth/register`, { email, password, firstName, lastName, role });
+    register(email: string, password: string, confirmPassword: string, firstName: string, lastName: string, role: string): Observable<any> {
+        return this.http.post(`${API}/api/auth/register`, { email, password, confirmPassword, firstName, lastName, role });
     }
 
     // Jobs

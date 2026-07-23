@@ -1,75 +1,149 @@
-AI-Powered Recruitment and Talent Management Platform
+# TalentAI — AI-Powered Recruitment Platform
 
-This repository contains the prototype and report for the SE205.3 Software Architecture coursework project. The system is a web-based recruitment and talent management platform designed for a multinational HR consulting company. It leverages AI-driven insights to modernize the recruitment lifecycle by automating candidate screening, job matching, interview scheduling, and workforce analytics.
+TalentAI is a full-stack recruitment platform that connects candidates, recruiters, hiring managers, and admins in one system. It supports job postings, applications, AI-assisted screening, interview scheduling, and automated communication (email/SMS notifications).
 
-🔑 Key Features
-Candidate Portal
+## Tech Stack
 
-Registration, authentication, and profile management
+**Backend**
+- ASP.NET Core (.NET) Web API
+- Entity Framework Core + Pomelo (MySQL provider)
+- MySQL database
+- JWT-based authentication
+- MailKit (email) + Twilio (SMS)
+- Google Gemini API (AI features)
 
-Resume upload and AI-powered job recommendations
+**Frontend**
+- Angular
+- TypeScript
 
-Application tracking dashboard
+## Project Structure
 
-Recruiter Portal
+```
+AI-Platform/
+├── RecruitmentPlatform.API/       # Backend (.NET Web API)
+│   ├── Controllers/                # API endpoints
+│   ├── Models/                     # EF Core entity models
+│   ├── DTOs/                       # Request/response objects
+│   ├── Services/                   # Business logic (Email, SMS, Notifications)
+│   ├── Interfaces/                 # Service contracts
+│   ├── BackgroundServices/         # Scheduled jobs (interview reminders)
+│   ├── Data/                       # AppDbContext (EF Core)
+│   ├── appsettings.json            # Base config (placeholders only)
+│   └── appsettings.Development.json # Local secrets (gitignored, not committed)
+└── RecruitmentPlatform.Client/    # Frontend (Angular)
+    └── src/app/
+        ├── pages/                  # Feature pages (sign-in, dashboard, jobs, etc.)
+        └── services/                # API + Auth services
+```
 
-Job posting creation and candidate search
+## Features
 
-AI-powered candidate ranking and screening
+- **Authentication** — Register/login with JWT, role-based access (`Candidate`, `Recruiter`, `HiringManager`, `Admin`)
+- **Job Postings** — Recruiters can create, list, and manage job postings
+- **Applications** — Candidates apply to jobs; recruiters review, shortlist, and update application status
+- **AI Insights** — Gemini-powered chat/matching assistance
+- **Interview Scheduling** — Interview records with automatic 24-hour reminder emails (background service)
+- **Communication Service** — Email and SMS notifications for application status updates and interview reminders
+- **Admin Dashboard** — User management and recruitment analytics
+- **Candidate Profile** — Resume upload, skills, experience, education
 
-Interview scheduling and applicant communication
+## Getting Started
 
-Hiring Manager Dashboard
+### Prerequisites
 
-Review shortlisted candidates
+- [.NET SDK](https://dotnet.microsoft.com/download) (matching the project's target framework)
+- [Node.js](https://nodejs.org/) + npm
+- [MySQL Server](https://dev.mysql.com/downloads/) (running locally or remotely)
+- A Gmail account with an [App Password](https://myaccount.google.com/apppasswords) (for email notifications)
+- A [Twilio](https://www.twilio.com/try-twilio) account (for SMS notifications, optional)
 
-Manage interview feedback and candidate evaluation
+### 1. Clone the repository
 
-Hiring decision workflows
+```bash
+git clone <https://github.com/Lakshan994/AI-Recruitment-Platform.git>
+cd AI-Platform
+```
 
-Administrator Portal
+### 2. Database setup
 
-User, role, and permission management
+Create the MySQL database and required tables. Run the SQL scripts in `RecruitmentPlatform.API/database/` (if present) or ensure your schema matches the models in `RecruitmentPlatform.API/Models/`.
 
-Recruitment analytics dashboard
+### 3. Backend configuration
 
-Organization and department management
+The backend reads configuration from two files:
+- `appsettings.json` — committed to git, should only contain **placeholder** values
+- `appsettings.Development.json` — **not committed** (gitignored), contains your real local secrets
 
-⚙️ Tech Stack
-Frontend: Angular (HTML5, CSS3, TypeScript)
+Create `RecruitmentPlatform.API/appsettings.Development.json` with your real values:
 
-Backend: C# ASP.NET Web API
+```json
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "Jwt": {
+    "Key": "YOUR_OWN_SECRET_KEY",
+    "Issuer": "RecruitmentPlatform",
+    "Audience": "RecruitmentPlatformClient"
+  },
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=127.0.0.1;Port=3306;Database=recruitmentplatformdb;User=root;Password=YOUR_DB_PASSWORD;GuidFormat=None;"
+  },
+  "Gemini": {
+    "ApiKey": "YOUR_GEMINI_API_KEY"
+  },
+  "EmailSettings": {
+    "SenderName": "AI Recruitment Platform",
+    "SenderEmail": "yourgmail@gmail.com",
+    "Username": "yourgmail@gmail.com",
+    "Password": "YOUR_GMAIL_APP_PASSWORD",
+    "SmtpServer": "smtp.gmail.com",
+    "Port": "587"
+  },
+  "Twilio": {
+    "AccountSid": "YOUR_TWILIO_ACCOUNT_SID",
+    "AuthToken": "YOUR_TWILIO_AUTH_TOKEN",
+    "PhoneNumber": "+1234567890"
+  }
+}
+```
 
-Database: MongoDB (document-oriented, scalable storage)
+> ⚠️ Use `127.0.0.1` rather than `localhost` in the connection string to avoid IPv6 resolution issues on some Windows machines.
 
-Security: JWT authentication, RBAC, password hashing, HTTPS, audit logging
+### 4. Run the backend
 
-AI Services: Resume parsing, skill extraction, candidate-job matching, recruitment analytics
+```bash
+cd RecruitmentPlatform.API
+dotnet run
+```
 
-🔗 Integrations
-Email & SMS notifications
+The API starts at `http://localhost:5076`.
 
-Calendar sync with Outlook & Google Calendar
+### 5. Run the frontend
 
-Cloud storage for resumes and certifications
+```bash
+cd RecruitmentPlatform.Client
+npm install
+npm start
+```
 
-🧪 Testing
-Unit testing, API endpoint testing, and integration testing
+The app starts at `http://localhost:4200`.
 
-Swagger/OpenAPI documentation
+## Notes on Secrets
 
-Postman evidence included in the report
+- **Never commit `appsettings.Development.json`.** It's excluded via `.gitignore`.
+- If a secret is ever accidentally committed, rotate it immediately (regenerate the Gmail App Password, Twilio Auth Token, and/or JWT key) and remove it from the branch with `git rm --cached`.
+- GitHub's push protection will block pushes containing recognizable secrets (API keys, tokens) — treat a blocked push as a signal to check `git status` before re-adding files.
 
-📊 Deliverables
-Prototype: Fully functional Angular client + ASP.NET Web API backend + MongoDB database
+## Communication Service
 
-Report: Architectural diagrams, design patterns, decisions, screenshots, testing results, and individual contributions
+The platform sends automated notifications through:
+- **Email** (`EmailService` via MailKit/SMTP) — application status updates, interview reminders
+- **SMS** (`SmsService` via Twilio) — optional, requires a verified Twilio number (verified caller ID on trial accounts)
+- **Interview Reminder Background Job** — runs periodically, checks for interviews within the next 24 hours, and sends a reminder if one hasn't been sent yet (`ReminderSent` flag)
 
-🚀 Bonus Features (Optional)
-AI-powered interview question generation
+All outgoing notifications are logged in the `Notifications` table with a `Status` of `Sent` or `Failed`.
 
-Candidate sentiment analysis
-
-Predictive hiring analytics
-
-AI chatbot for candidate support

@@ -157,6 +157,10 @@ export class ApiService {
         return this.http.post(`${API}/api/jobs`, { title, description, requiredSkills });
     }
 
+    generateJobDescription(title: string, requiredSkills: string, additionalContext: string): Observable<{ description: string }> {
+        return this.http.post<{ description: string }>(`${API}/api/jobs/generate-description`, { title, requiredSkills, additionalContext });
+    }
+
     deleteJob(id: string): Observable<any> {
         return this.http.delete(`${API}/api/jobs/${id}`);
     }

@@ -236,5 +236,26 @@ namespace RecruitmentPlatform.API.Controllers
 
             return Ok(new { message = "Job deleted." });
         }
+
+        // POST /api/jobs/generate-description — Generate JD with AI (Recruiter only)
+        [HttpPost("generate-description")]
+        [Authorize(Roles = "Recruiter")]
+        public async Task<IActionResult> GenerateDescription([FromBody] GenerateJobDescriptionRequestDto request)
+        {
+            if (string.IsNullOrWhiteSpace(request.Title) || string.IsNullOrWhiteSpace(request.RequiredSkills))
+            {
+                return BadRequest(new { message = "Title and Required Skills are mandatory for generation." });
+            }
+
+            try
+            {
+                var description = await _aiService.GenerateJobDescriptionAsync(request.Title, request.RequiredSkills, request.AdditionalContext);
+                return Ok(new { description });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
     }
 }

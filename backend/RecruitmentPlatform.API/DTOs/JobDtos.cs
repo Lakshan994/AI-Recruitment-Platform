@@ -18,4 +18,11 @@ namespace RecruitmentPlatform.API.DTOs
         public DateTime CreatedAt { get; set; }
         public bool IsActive { get; set; }
     }
+
+    public class GenerateJobDescriptionRequestDto
+    {
+        public string Title { get; set; } = string.Empty;
+        public string RequiredSkills { get; set; } = string.Empty;
+        public string AdditionalContext { get; set; } = string.Empty;
+    }
 }

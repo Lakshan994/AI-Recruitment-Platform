@@ -1,0 +1,199 @@
+<div class="min-h-[calc(100vh-4rem)] p-8">
+	<div class="max-w-4xl mx-auto">
+
+		<div class="glass-card p-10 md:p-12 rounded-3xl border dark:border-slate-800 shadow-[0_8px_32px_rgba(0,0,0,0.05)] animate-fade-in-up mb-10 text-center backdrop-blur-md bg-white/90 dark:bg-slate-900/90">
+			<h1 class="text-4xl md:text-5xl font-extrabold mb-4 text-[var(--theme-text)] tracking-tight">My Profile</h1>
+			<p class="text-[var(--theme-text-muted)] text-lg max-w-2xl mx-auto mb-0">Manage your professional details and resume.</p>
+		</div>
+
+		<!-- Alerts -->
+		<div *ngIf="error" class="px-4 py-3 rounded-xl mb-6 text-blue-400 animate-fade-in ext-style-5f528695">
+			{{ error }}
+		</div>
+		<div *ngIf="message" class="px-4 py-3 rounded-xl mb-6 text-blue-400 animate-fade-in ext-style-aad0388f">
+			{{ message }}
+		</div>
+
+		<!-- Loading State -->
+		<div *ngIf="isLoading" class="flex justify-center py-12">
+			<div class="animate-spin rounded-full h-12 w-12 ext-style-85380c87"></div>
+		</div>
+
+		<div *ngIf="!isLoading" class="grid grid-cols-1 md:grid-cols-3 gap-8">
+
+			<!-- Main Details Form -->
+			<div class="md:col-span-2 space-y-6">
+				<div class="glass-card rounded-2xl p-6 animate-fade-in-up-delay">
+					<h2 class="text-xl font-bold text-[var(--theme-text)] mb-6">Professional Details</h2>
+
+					<div class="space-y-4">
+						<div>
+							<label for="bio" class="block text-sm font-medium text-[var(--theme-text-muted)] mb-1">Professional Bio</label>
+							<textarea id="bio" [(ngModel)]="profile.bio" rows="4" placeholder="Tell us about yourself..."
+							class="glass-card text-[var(--theme-text)] placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none w-full rounded-xl px-4 py-3 resize-none"></textarea>
+						</div>
+
+						<div>
+							<label for="skills" class="block text-sm font-medium text-[var(--theme-text-muted)] mb-1">Key Skills (Comma separated)</label>
+							<input id="skills" [(ngModel)]="profile.skills" type="text" placeholder="e.g. C#, Angular, MongoDB"
+							class="glass-card text-[var(--theme-text)] placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none w-full rounded-xl px-4 py-3">
+							</div>
+
+						<div>
+							<label for="experience" class="block text-sm font-medium text-[var(--theme-text-muted)] mb-1">Work Experience</label>
+							<textarea id="experience" [(ngModel)]="profile.experience" rows="3" placeholder="List your relevant work experience..."
+							class="glass-card text-[var(--theme-text)] placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none w-full rounded-xl px-4 py-3 resize-none"></textarea>
+						</div>
+
+						<div>
+							<label for="education" class="block text-sm font-medium text-[var(--theme-text-muted)] mb-1">Education</label>
+							<input id="education" [(ngModel)]="profile.education" type="text" placeholder="e.g. BSc Computer Science, NSBM"
+							class="glass-card text-[var(--theme-text)] placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none w-full rounded-xl px-4 py-3">
+							</div>
+
+						<button (click)="saveProfile()" [disabled]="isSaving"
+						class="w-full mt-4 gradient-brand-btn text-white rounded-xl px-4 py-3 font-medium disabled:opacity-50 flex items-center justify-center">
+							<span *ngIf="!isSaving">Save Changes</span>
+							<div *ngIf="isSaving" class="animate-spin rounded-full h-5 w-5 ext-style-75ff706b"></div>
+						</button>
+					</div>
+				</div>
+			</div>
+
+			<!-- Resume Sidebar -->
+			<div class="space-y-6">
+				<div class="glass-card rounded-2xl p-6 animate-fade-in-up-delay-2">
+					<h2 class="text-xl font-bold text-[var(--theme-text)] mb-6">Resume / CV</h2>
+
+					<div *ngIf="profile.resumeUrl" class="mb-6 p-4 rounded-xl ext-style-a0ec6200">
+						<div class="flex items-center gap-3">
+							<svg class="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+							</svg>
+							<div>
+								<p class="text-sm font-medium text-[var(--theme-text)]">Resume Uploaded</p>
+								<a [href]="profile.resumeUrl" target="_blank" class="text-xs text-blue-400 hover:text-blue-300 underline transition-colors">View Document</a>
+							</div>
+						</div>
+					</div>
+
+					<div *ngIf="!profile.resumeUrl" class="mb-6 text-sm p-3 rounded-lg ext-style-6b77056f">
+						You have not uploaded a resume yet. You must upload one before applying to jobs.
+					</div>
+
+					<div class="space-y-4">
+						<div>
+							<label for="resumeUpload" class="block text-sm font-medium text-[var(--theme-text-muted)] mb-2">Upload New Resume</label>
+							<input id="resumeUpload" type="file" (change)="onFileSelected($event)" accept=".pdf,.doc,.docx" title="Upload Resume"
+							class="block w-full text-sm text-[var(--theme-text-muted)] file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:text-blue-400 transition-all cursor-pointer ext-style-4f668b6f">
+							</div>
+
+						<button (click)="uploadResume()" [disabled]="!selectedFile || isUploading"
+						class="w-full btn-secondary-dark rounded-xl px-4 py-2.5 font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-all">
+							<span *ngIf="!isUploading" class="flex items-center gap-1.5">
+								<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+								</svg>
+								Upload & AI Parse Resume
+							</span>
+							<span *ngIf="isUploading" class="flex items-center gap-2">
+								<div class="animate-spin rounded-full h-4 w-4 border-2 border-blue-400 border-t-transparent"></div>
+								AI Analyzing Document...
+							</span>
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Secure Cloud Documents Vault -->
+		<div *ngIf="!isLoading" class="mt-8 glass-card rounded-2xl p-6 animate-fade-in-up-delay-3">
+			<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b dark:border-slate-800">
+				<div>
+					<h2 class="text-xl font-bold text-[var(--theme-text)] flex items-center gap-2">
+						<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" stroke="#60a5fa" stroke-width="2" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+						</svg>
+						Secure Cloud Storage Vault
+					</h2>
+					<p class="text-xs text-[var(--theme-text-muted)] mt-1">Upload and store resumes, certifications, and supporting documents in your private encrypted cloud container.</p>
+				</div>
+
+				<!-- Inline Upload Control -->
+				<div class="flex flex-wrap items-center gap-2.5 bg-slate-900/50 p-2.5 rounded-2xl border border-slate-850">
+					<select [(ngModel)]="docTypeToUpload" class="bg-slate-900 text-xs text-[var(--theme-text-muted)] rounded-lg px-2.5 py-1.5 border dark:border-slate-800 focus:outline-none focus:border-blue-500 cursor-pointer" title="Select Document Type">
+						<option value="Resume">Resume</option>
+						<option value="Certification">Certification</option>
+						<option value="SupportingDocument">Supporting Document</option>
+					</select>
+					<input type="file" (change)="onDocFileSelected($event)" accept=".pdf,.doc,.docx,.jpg,.png" title="Select secure document file" class="text-xs text-[var(--theme-text-muted)] file:py-1 file:px-2.5 file:rounded-md file:border-0 file:text-[10px] file:font-semibold file:bg-blue-500/10 file:text-blue-400 hover:file:bg-blue-500/20 cursor-pointer transition-all">
+						<button (click)="uploadSecureDoc()" [disabled]="!selectedDocFile || isUploadingDoc" class="px-3.5 py-1.5 bg-blue-500 hover:bg-blue-600 disabled:bg-slate-900 disabled:text-[var(--theme-text-muted)] text-xs font-semibold text-[var(--theme-text)] rounded-lg transition-all cursor-pointer flex items-center gap-1.5">
+							<span *ngIf="!isUploadingDoc" class="flex items-center gap-1">
+								<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+								</svg>
+								Upload
+							</span>
+							<span *ngIf="isUploadingDoc" class="flex items-center gap-1">
+								<div class="animate-spin rounded-full h-3 w-3 border border-slate-950 border-t-transparent"></div>
+								Uploading...
+							</span>
+						</button>
+					</div>
+			</div>
+
+			<!-- Loading Documents -->
+			<div *ngIf="loadingDocs" class="text-center py-6 text-[var(--theme-text-muted)] flex justify-center gap-2">
+				<svg class="animate-spin h-5 w-5 text-blue-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+					<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+					<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+				</svg>
+				Loading vault documents...
+			</div>
+
+			<!-- No Documents -->
+			<div *ngIf="!loadingDocs && documents.length === 0" class="text-center py-10 text-[var(--theme-text-muted)] rounded-xl bg-slate-900/10 border border-dashed dark:border-slate-800">
+				<svg class="w-10 h-10 text-slate-700 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v4a2 2 0 0 0 2 2h4M16 13H8m8 4H8m2-9H8"/>
+				</svg>
+				<p class="text-sm">Your secure cloud storage vault is empty.</p>
+			</div>
+
+			<!-- Documents List -->
+			<div *ngIf="!loadingDocs && documents.length > 0" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+				<div *ngFor="let doc of documents" class="glass-card hover: dark:border-slate-800/80 p-4.5 rounded-2xl flex items-center justify-between gap-4 transition-all hover:-translate-y-0.5 duration-200">
+					<div class="flex items-center gap-3 overflow-hidden">
+						<div class="p-2.5 rounded-xl bg-blue-500/10 text-blue-400 shrink-0">
+							<svg *ngIf="doc.documentType === 'Resume'" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+							</svg>
+							<svg *ngIf="doc.documentType === 'Certification'" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
+							</svg>
+							<svg *ngIf="doc.documentType === 'SupportingDocument'" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+							</svg>
+						</div>
+						<div class="overflow-hidden">
+							<h4 class="text-xs font-bold text-[var(--theme-text)] truncate" [title=""]="doc.fileName">{{ doc.fileName }}</h4>
+							<p class="text-[10px] text-[var(--theme-text-muted)] mt-0.5">{{ doc.documentType }} • {{ doc.uploadedAt | date:'shortDate' }}</p>
+						</div>
+					</div>
+
+					<div class="flex gap-1.5 shrink-0">
+						<button (click)="downloadSecureDoc(doc.id)" class="p-1.5 hover:bg-slate-900 text-blue-400 rounded-lg transition-all cursor-pointer" title="Download securely">
+							<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+							</svg>
+						</button>
+						<button (click)="deleteSecureDoc(doc.id)" class="p-1.5 hover:bg-blue-500/10 text-blue-400 rounded-lg transition-all cursor-pointer" title="Delete file">
+							<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+							</svg>
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

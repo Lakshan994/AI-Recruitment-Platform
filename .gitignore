@@ -427,3 +427,9 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+a p p s e t t i n g s . D e v e l o p m e n t . j s o n 
+ 
+ appsettings.Development.json 
+# Angular cache
+**/.angular/
+credentials.json.json

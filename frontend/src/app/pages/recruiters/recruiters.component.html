@@ -33,15 +33,8 @@
                            placeholder="e.g. Senior Frontend Engineer" title="Job Title" />
                 </div>
                 <div>
-                    <div class="flex justify-between items-center mb-1">
-                        <label for="jobDesc" class="block text-sm font-medium text-[var(--theme-text-muted)]">Description</label>
-                        <button type="button" (click)="generateJobDescription()" [disabled]="loading"
-                                class="text-xs font-semibold px-3 py-1 rounded-lg bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition-all flex items-center gap-1 border border-blue-500/20 disabled:opacity-50">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.7 10.3a2.41 2.41 0 0 0 0 3.41l7.59 7.59a2.41 2.41 0 0 0 3.41 0l7.59-7.59a2.41 2.41 0 0 0 0-3.41l-7.59-7.59a2.41 2.41 0 0 0-3.41 0Z"/><path d="m9 15 6-6"/><path d="m15 15-6-6"/></svg>
-                            ✨ Generate with AI
-                        </button>
-                    </div>
-                    <textarea required id="jobDesc" rows="6" [(ngModel)]="description" name="description"
+                    <label for="jobDesc" class="block text-sm font-medium text-[var(--theme-text-muted)] mb-1">Description</label>
+                    <textarea required id="jobDesc" rows="4" [(ngModel)]="description" name="description"
                               class="glass-card text-[var(--theme-text)] placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none w-full rounded-xl px-4 py-3 shadow-sm resize-none"
                               placeholder="Describe the role, responsibilities, and requirements..." title="Job Description"></textarea>
                 </div>

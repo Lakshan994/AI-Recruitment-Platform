@@ -378,22 +378,5 @@ Instructions:
                 return "We are experiencing technical difficulties with the interview system. Please try again later.";
             }
         }
-
-        public async Task<string> GenerateJobDescriptionAsync(string title, string skills, string additionalPrompt)
-        {
-            var systemPrompt = "You are an expert technical recruiter. Generate a professional, compelling, and inclusive job description based on the provided title, required skills, and any additional context. Include sections for 'About the Role', 'Key Responsibilities', and 'Requirements'. Use Markdown formatting, but do not enclose the entire response in a code block.";
-            var userPrompt = $"Job Title: {title}\nRequired Skills: {skills}\nAdditional Context: {additionalPrompt}\n\nPlease generate the full job description.";
-
-            try
-            {
-                var response = await CallGeminiAsync(systemPrompt, userPrompt);
-                return CleanJson(response);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Failed to generate job description with AI service.");
-                throw new Exception("AI service is currently unavailable for job description generation.", ex);
-            }
-        }
     }
 }

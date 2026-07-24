@@ -1,0 +1,55 @@
+.home-particle-1 { animation-duration: 12s; animation-delay: 0s; }
+.home-particle-2 { animation-duration: 15s; animation-delay: 2s; }
+.home-particle-3 { animation-duration: 18s; animation-delay: 4s; }
+.home-particle-4 { animation-duration: 14s; animation-delay: 1s; }
+.home-particle-5 { animation-duration: 16s; animation-delay: 3s; }
+.home-particle-6 { animation-duration: 20s; animation-delay: 5s; }
+.home-particle-7 { animation-duration: 13s; animation-delay: 6s; }
+.home-particle-8 { animation-duration: 17s; animation-delay: 7s; }
+
+.home-morph-blob-1 { animation-delay: -4s; }
+.home-rotate-slow-1 { animation-duration: 30s; }
+.home-ripple-1 { animation-delay: 0.7s; }
+
+.home-wave-1 {
+  animation-duration: 20s;
+  animation-direction: reverse;
+}
+
+.home-ripple-2 { animation-delay: 0.5s; }
+.home-ripple-3 { animation-delay: 1s; }
+.home-bg-size-1 { background-size: 300% 300%; }
+
+.home-particle-9 { animation-duration: 10s; }
+.home-particle-10 { animation-duration: 12s; animation-delay: 3s; }
+.home-particle-11 { animation-duration: 14s; animation-delay: 1s; }
+
+/* Floating animations for hero UI cards */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-12px); }
+}
+
+@keyframes float-delayed {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+.animate-float-delayed {
+  animation: float-delayed 5s ease-in-out infinite;
+  animation-delay: 1s;
+}
+
+.animate-float-slow {
+  animation: float-slow 6s ease-in-out infinite;
+  animation-delay: 2s;
+}

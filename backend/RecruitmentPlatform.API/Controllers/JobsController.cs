@@ -163,6 +163,20 @@ namespace RecruitmentPlatform.API.Controllers
             });
         }
 
+        // POST /api/jobs/generate-description — Generate Job Description with AI
+        [HttpPost("generate-description")]
+        [Authorize(Roles = "Recruiter,Admin")]
+        public async Task<IActionResult> GenerateDescription([FromBody] GenerateJobDescriptionRequestDto request)
+        {
+            if (string.IsNullOrWhiteSpace(request.Title) || string.IsNullOrWhiteSpace(request.RequiredSkills))
+            {
+                return BadRequest(new { message = "Title and RequiredSkills are necessary to generate a description." });
+            }
+
+            var description = await _aiService.GenerateJobDescriptionAsync(request.Title, request.RequiredSkills);
+            return Ok(new { description });
+        }
+
         // POST /api/jobs — Create job (Recruiter only)
         [HttpPost]
         [Authorize(Roles = "Recruiter")]

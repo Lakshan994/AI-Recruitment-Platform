@@ -77,15 +77,57 @@ export class FindJobsComponent implements OnInit {
     this.fetchJobs(this.search);
   }
 
-  applyToJob(jobId: string): void {
+  // Cover Letter Modal State
+  isApplyModalOpen = false;
+  selectedJobForApply: Job | JobRecommendation | null = null;
+  coverLetter = '';
+  generatingCoverLetter = false;
+
+  openApplyModal(job: Job | JobRecommendation): void {
     if (!this.auth.getToken() || !this.auth.isCandidate()) return;
-    this.applyingTo = jobId;
+    this.selectedJobForApply = job;
+    this.coverLetter = '';
+    this.isApplyModalOpen = true;
     this.message = '';
-    this.api.apply(jobId).subscribe({
+  }
+
+  closeApplyModal(): void {
+    this.isApplyModalOpen = false;
+    this.selectedJobForApply = null;
+  }
+
+  generateCoverLetter(): void {
+    if (!this.selectedJobForApply) return;
+    
+    this.generatingCoverLetter = true;
+    this.message = 'Generating cover letter with AI... ✨';
+
+    this.api.generateCoverLetter(this.selectedJobForApply.id).subscribe({
+      next: (res) => {
+        this.coverLetter = res.coverLetter;
+        this.message = 'Cover letter generated successfully!';
+        this.generatingCoverLetter = false;
+        setTimeout(() => this.message = '', 3000);
+      },
+      error: (err) => {
+        this.message = 'Failed to generate cover letter: ' + (err.error?.message || err.message);
+        this.generatingCoverLetter = false;
+        setTimeout(() => this.message = '', 3000);
+      }
+    });
+  }
+
+  submitApplication(): void {
+    if (!this.selectedJobForApply) return;
+    const jobId = this.selectedJobForApply.id;
+
+    this.applyingTo = jobId;
+    this.api.apply(jobId, this.coverLetter).subscribe({
       next: (data) => {
         this.appliedJobs.add(jobId);
-        this.message = `Applied! AI Match Score: ${data.matchScore}%`;
+        this.message = `Applied successfully! AI Match Score: ${data.matchScore}%`;
         this.applyingTo = null;
+        this.closeApplyModal();
         setTimeout(() => this.message = '', 4000);
       },
       error: (err) => {

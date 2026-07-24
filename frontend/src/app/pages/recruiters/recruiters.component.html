@@ -33,8 +33,14 @@
                            placeholder="e.g. Senior Frontend Engineer" title="Job Title" />
                 </div>
                 <div>
-                    <label for="jobDesc" class="block text-sm font-medium text-[var(--theme-text-muted)] mb-1">Description</label>
-                    <textarea required id="jobDesc" rows="4" [(ngModel)]="description" name="description"
+                    <div class="flex items-center justify-between mb-1">
+                        <label for="jobDesc" class="block text-sm font-medium text-[var(--theme-text-muted)]">Description</label>
+                        <button type="button" (click)="generateDescription()" [disabled]="loading" class="text-xs font-semibold text-blue-500 hover:text-blue-400 flex items-center gap-1 transition-all">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3l1.9 5.8 1.9-5.8a2 2 0 0 1 1.3-1.3l5.8-1.9-5.8-1.9a2 2 0 0 1-1.3-1.3z" /><path d="M19 8l-1 3-3 1 3 1 1 3 1-3 3-1-3-1z" /></svg>
+                            Auto-Generate with AI ✨
+                        </button>
+                    </div>
+                    <textarea required id="jobDesc" rows="8" [(ngModel)]="description" name="description"
                               class="glass-card text-[var(--theme-text)] placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none w-full rounded-xl px-4 py-3 shadow-sm resize-none"
                               placeholder="Describe the role, responsibilities, and requirements..." title="Job Description"></textarea>
                 </div>

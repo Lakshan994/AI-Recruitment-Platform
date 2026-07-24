@@ -152,6 +152,9 @@ export class ApiService {
         return this.http.get<JobRecommendation[]>(`${API}/api/jobs/recommendations`);
     }
 
+    generateJobDescription(title: string, requiredSkills: string): Observable<{ description: string }> {
+        return this.http.post<{ description: string }>(`${API}/api/jobs/generate-description`, { title, requiredSkills });
+    }
 
     createJob(title: string, description: string, requiredSkills: string): Observable<any> {
         return this.http.post(`${API}/api/jobs`, { title, description, requiredSkills });
@@ -162,8 +165,12 @@ export class ApiService {
     }
 
     // Applications
-    apply(jobPostingId: string): Observable<any> {
+    apply(jobPostingId: string, coverLetter?: string): Observable<any> {
         return this.http.post(`${API}/api/applications`, { jobPostingId, resumeUrl: '' });
+    }
+
+    generateCoverLetter(jobId: string): Observable<{ coverLetter: string }> {
+        return this.http.post<{ coverLetter: string }>(`${API}/api/applications/job/${jobId}/generate-cover-letter`, {});
     }
 
     getMyApplications(): Observable<Application[]> {

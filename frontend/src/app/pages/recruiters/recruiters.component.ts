@@ -151,6 +151,31 @@ export class RecruitersComponent implements OnInit {
         });
     }
 
+    generateDescription(): void {
+        if (!this.title || !this.requiredSkills) {
+            this.message = 'Please enter a Title and Required Skills first to generate a description.';
+            setTimeout(() => this.message = '', 3000);
+            return;
+        }
+
+        this.loading = true;
+        this.message = 'Generating description with AI... ✨';
+
+        this.api.generateJobDescription(this.title, this.requiredSkills).subscribe({
+            next: (res) => {
+                this.description = res.description;
+                this.message = 'Description generated successfully!';
+                this.loading = false;
+                setTimeout(() => this.message = '', 3000);
+            },
+            error: (err) => {
+                this.message = 'Failed to generate description: ' + (err.error?.message || err.message);
+                this.loading = false;
+                setTimeout(() => this.message = '', 3000);
+            }
+        });
+    }
+
     updateStatus(appId: string, status: string): void {
         this.api.updateApplicationStatus(appId, status).subscribe({
             next: () => {

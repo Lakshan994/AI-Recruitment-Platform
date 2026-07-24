@@ -378,5 +378,58 @@ Instructions:
                 return "We are experiencing technical difficulties with the interview system. Please try again later.";
             }
         }
+
+        public async Task<string> GenerateJobDescriptionAsync(string title, string skills)
+        {
+            var systemPrompt = "You are an expert technical recruiter and copywriter. Your task is to write a highly engaging, professional, and SEO-optimized job description. Output only the job description content without any markdown blocks or intro/outro chat text. It should include a brief exciting intro, responsibilities, and requirements based on the title and skills provided.";
+            
+            var userPrompt = $@"
+Job Title: {title}
+Key Skills/Requirements: {skills}
+
+Please generate the full job description.
+";
+            try
+            {
+                var response = await CallGeminiAsync(systemPrompt, userPrompt);
+                return response.Trim();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to generate job description with AI service.");
+                return $"We are looking for a highly motivated {title} to join our team. \n\nKey requirements include: {skills}. \n\n(AI generation failed, please edit this description manually.)";
+            }
+        }
+
+        public async Task<string> GenerateCoverLetterAsync(User candidate, JobPosting job)
+        {
+            var systemPrompt = "You are an expert career coach and copywriter. Your task is to write a compelling, professional cover letter for a candidate applying to a specific job. Cross-reference the candidate's profile with the job details. The output should just be the letter content, without any markdown blocks or intro/outro chat text. Make it sound natural, enthusiastic, and tailored to the job.";
+
+            var userPrompt = $@"
+Job Posting:
+Title: {job.Title}
+Required Skills: {job.RequiredSkills}
+Description: {job.Description}
+
+Candidate Profile:
+Name: {candidate.FullName}
+Skills: {candidate.Skills}
+Experience: {candidate.Experience}
+Education: {candidate.Education}
+Bio: {candidate.Bio}
+
+Please draft a cover letter for this candidate applying to this job.
+";
+            try
+            {
+                var response = await CallGeminiAsync(systemPrompt, userPrompt);
+                return response.Trim();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to generate cover letter with AI service.");
+                return $"Dear Hiring Manager,\n\nI am writing to express my interest in the {job.Title} position. With my background in {candidate.Skills}, I believe I would be a valuable asset to your team.\n\nThank you for your time and consideration.\n\nSincerely,\n{candidate.FullName}";
+            }
+        }
     }
 }

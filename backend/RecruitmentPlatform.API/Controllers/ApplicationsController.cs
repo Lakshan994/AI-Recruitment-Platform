@@ -281,6 +281,29 @@ namespace RecruitmentPlatform.API.Controllers
             return Ok(new { feedback });
         }
 
+        // POST /api/applications/job/{jobId}/generate-cover-letter — Generate AI cover letter
+        [HttpPost("job/{jobId}/generate-cover-letter")]
+        [Authorize(Roles = "Candidate")]
+        public async Task<IActionResult> GenerateCoverLetter(string jobId)
+        {
+            var userId = User.FindFirstValue(JwtRegisteredClaimNames.Sub)
+                      ?? User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized(new { message = "Invalid token." });
+
+            var candidate = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            if (candidate == null)
+                return NotFound(new { message = "Candidate profile not found." });
+
+            var job = await _context.JobPostings.FirstOrDefaultAsync(j => j.Id == jobId && j.IsActive);
+            if (job == null)
+                return NotFound(new { message = "Job not found or inactive." });
+
+            var coverLetter = await _aiService.GenerateCoverLetterAsync(candidate, job);
+            return Ok(new { coverLetter });
+        }
+
 
         // GET /api/applications/stats — Dashboard stats
         [HttpGet("stats")]

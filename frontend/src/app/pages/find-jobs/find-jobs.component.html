@@ -84,10 +84,10 @@
  Applied
  </span>
  <button *ngIf="!appliedJobs.has(job.id) && auth.isCandidate() && auth.getToken()"
- (click)="applyToJob(job.id)" [disabled]="applyingTo === job.id"
- class="gradient-brand-btn flex items-center gap-2 px-6 py-3 text-sm font-medium disabled:opacity-50">
+ (click)="openApplyModal(job)"
+ class="gradient-brand-btn flex items-center gap-2 px-6 py-3 text-sm font-medium transition-all hover:scale-105 active:scale-95 shadow-md">
  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"/><path d="m21.854 2.147-10.94 10.939"/></svg>
- {{ applyingTo === job.id ? 'Applying...' : 'Apply Now' }}
+ Apply Now
  </button>
  <a *ngIf="!appliedJobs.has(job.id) && !auth.getToken()" href="/signin"
  class="px-6 py-3 rounded-full btn-secondary-dark text-sm font-medium inline-block">
@@ -171,13 +171,44 @@
  Applied
  </span>
  <button *ngIf="!appliedJobs.has(job.id) && auth.isCandidate() && auth.getToken()"
- (click)="applyToJob(job.id)" [disabled]="applyingTo === job.id"
- class="gradient-brand-btn flex items-center gap-2 px-6 py-3 text-sm font-medium disabled:opacity-50">
+ (click)="openApplyModal(job)"
+ class="gradient-brand-btn flex items-center gap-2 px-6 py-3 text-sm font-medium transition-all hover:scale-105 active:scale-95 shadow-md">
  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"/><path d="m21.854 2.147-10.94 10.939"/></svg>
- {{ applyingTo === job.id ? 'Applying...' : 'Apply Now' }}
+ Apply Now
  </button>
  </div>
  </div>
+ </div>
+ </div>
+ </div>
+
+ <!-- APPLY MODAL WITH COVER LETTER GENERATOR -->
+ <div *ngIf="isApplyModalOpen && selectedJobForApply" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm">
+ <div class="glass-card p-6 md:p-8 rounded-3xl w-full max-w-2xl animate-fade-in-up bg-white/95 dark:bg-slate-900/95 border dark:border-slate-800 shadow-2xl">
+ <h3 class="text-2xl font-bold text-[var(--theme-text)] mb-2">Apply for {{ selectedJobForApply.title }}</h3>
+ <p class="text-[var(--theme-text-muted)] text-sm mb-6">Review your application and optionally include a cover letter. You can have our AI draft one for you based on your profile.</p>
+
+ <div class="space-y-5">
+ <div>
+ <div class="flex items-center justify-between mb-1">
+ <label class="block text-sm font-medium text-[var(--theme-text-muted)]">Cover Letter (Optional)</label>
+ <button type="button" (click)="generateCoverLetter()" [disabled]="generatingCoverLetter" class="text-xs font-semibold text-blue-500 hover:text-blue-400 flex items-center gap-1 transition-all bg-blue-500/10 px-3 py-1 rounded-full border border-blue-500/20">
+ <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3l1.9 5.8 1.9-5.8a2 2 0 0 1 1.3-1.3l5.8-1.9-5.8-1.9a2 2 0 0 1-1.3-1.3z" /><path d="M19 8l-1 3-3 1 3 1 1 3 1-3 3-1-3-1z" /></svg>
+ Auto-Generate with AI ✨
+ </button>
+ </div>
+ <textarea rows="8" [(ngModel)]="coverLetter" placeholder="Write or generate a cover letter..." class="glass-card text-[var(--theme-text)] placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none w-full rounded-xl px-4 py-3 shadow-sm resize-none"></textarea>
+ <p *ngIf="generatingCoverLetter" class="text-blue-400 text-xs mt-2 animate-pulse flex items-center gap-1.5"><svg class="animate-spin h-3.5 w-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Our AI is writing a personalized cover letter...</p>
+ </div>
+ </div>
+
+ <div class="flex justify-end gap-3 pt-6 mt-6 border-t dark:border-slate-800">
+ <button (click)="closeApplyModal()" class="px-6 py-2.5 rounded-xl btn-secondary-dark text-sm font-semibold transition-all">
+ Cancel
+ </button>
+ <button (click)="submitApplication()" [disabled]="applyingTo === selectedJobForApply.id" class="px-8 py-2.5 rounded-xl gradient-brand-btn text-white text-sm font-semibold transition-all shadow-lg hover:scale-105 active:scale-95 disabled:opacity-50">
+ {{ applyingTo === selectedJobForApply.id ? 'Submitting...' : 'Submit Application' }}
+ </button>
  </div>
  </div>
  </div>
